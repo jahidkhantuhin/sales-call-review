@@ -2,7 +2,7 @@
   <v-menu
     v-model="showDatePicker"
     :close-on-content-click="false"
-    :nudge-right="40"
+    :nudge-right="compact ? 0 : 40"
     transition="scale-transition"
     offset-y
     min-width="auto"
@@ -12,8 +12,13 @@
       <v-text-field
         v-model="displayedDates"
         clearable
-        label="Date or Date Range"
-        prepend-icon="mdi-calendar"
+        :id="compact ? 'call-date-range' : undefined"
+        :label="compact ? 'Call dates' : 'Date or Date Range'"
+        :dense="compact"
+        :outlined="compact"
+        :hide-details="compact"
+        :prepend-inner-icon="compact ? 'mdi-calendar' : undefined"
+        :prepend-icon="compact ? undefined : 'mdi-calendar'"
         readonly
         v-bind="attrs"
         v-on="on"
@@ -81,13 +86,17 @@ import moment from "moment";
 export default defineComponent({
   props: {
     value: [String, Array],
+    compact: Boolean,
   },
   setup(props, app) {
     const showDatePicker = ref(false);
     const dates = ref([]);
     const displayedDates = computed({
-      get: () =>
-        dates.value.map((d) => moment(d).format("DD MMMM YYYY")).join(" to "),
+      get: () => {
+        const uniqueDates = props.compact ? [...new Set(dates.value)] : dates.value;
+        const format = props.compact ? "MMM D" : "DD MMMM YYYY";
+        return uniqueDates.map((date) => moment(date).format(format)).join(props.compact ? " – " : " to ");
+      },
       set: (v) => {
         if (!v) {
           dates.value = [];

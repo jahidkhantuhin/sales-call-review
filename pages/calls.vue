@@ -2,7 +2,7 @@
   <secured-component :permission="'view calls'" :show-message="true">
     <div class="calls-page" >
       <v-row>
-        <v-col cols="12" sm="6" md="3">
+        <v-col cols="12" sm="4" md="3">
           <v-card class="clients-list-sidebar" elevation="0" >
             <v-toolbar elevation="0" >
               <v-toolbar-title class="calls-heading" >
@@ -71,7 +71,7 @@
             </v-list>
           </v-card>
         </v-col>
-        <v-col cols="12" sm="6" md="9">
+        <v-col cols="12" sm="8" md="9">
           <v-card elevation="0" >
             <v-toolbar elevation="0">
               <v-toolbar-title v-if="selectedLocation" > Calls · {{selectedLocation && selectedLocation.name}} </v-toolbar-title>
@@ -84,7 +84,6 @@
               <calls-page-filters
                 :selectedLocation="selectedLocation"
                 @change="handleChangeFilters"
-                class="filters"
               ></calls-page-filters>
               <v-data-table
               ref="table"
@@ -903,10 +902,6 @@ export default defineComponent({
   }
 }
 
-.filters {
-  margin-top: -30px;
-  margin-bottom: 7px;
-}
 .clients-list-sidebar {
   .v-radio {
     margin-right: 5px !important;

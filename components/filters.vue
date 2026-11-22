@@ -1,22 +1,24 @@
 <template>
-  <v-row class="filters review-filters">
-    <v-col v-if="selectedLocation && selectedLocation.id" cols="12" xl="2" lg="4" md="4" sm="6">
-        <v-select
-          id="rated"
-          :items="campaignList"
-          label="Ad Campaign"
-          item-text="name"
-          item-value="f_campaign_id"
-          clearable
-          v-model="filters['campaign']"
-          @change="handleCampaignIdChange"
-          small
-        ></v-select>
-    </v-col>
-    <v-col cols="12" xl="2" lg="4" md="4" sm="6">
+  <div class="review-calls-filters" role="group" aria-label="Call filters">
+    <div v-if="selectedLocation && selectedLocation.id">
+      <v-select
+        id="ad-campaign"
+        :items="campaignList"
+        label="Ad Campaign"
+        item-text="name"
+        item-value="f_campaign_id"
+        clearable
+        v-model="filters['campaign']"
+        @change="handleCampaignIdChange"
+        dense
+        outlined
+        hide-details
+      ></v-select>
+    </div>
+    <div>
       <v-select
         ref="select"
-        id="rated"
+        id="call-status"
         :items="[
           {
             value: 'unrated',
@@ -37,13 +39,15 @@
         clearable
         v-model="filters['rated_type']"
         @change="handleCallStatusChange"
-        small
+        dense
+        outlined
+        hide-details
       ></v-select>
-    </v-col>
-    <v-col cols="12" xl="2" lg="4" md="4" sm="6">
+    </div>
+    <div>
       <v-select
         ref="select"
-        id="rated"
+        id="call-order"
         :items="[
           {
             value: 'oldest',
@@ -60,13 +64,15 @@
         clearable
         v-model="filters['order_by']"
         @change="handleCallStatusChange"
-        small
+        dense
+        outlined
+        hide-details
       ></v-select>
-    </v-col>
-    <v-col cols="12" xl="2" lg="4" md="4" sm="6">
+    </div>
+    <div>
       <v-select
         ref="select"
-        id="rated"
+        id="blacklisted-calls"
         :items="[
           {
             value: 'true',
@@ -83,13 +89,15 @@
         clearable
         v-model="filters['blacklisted_call']"
         @change="handleBlacklistedCallChange"
-        small
+        dense
+        outlined
+        hide-details
       ></v-select>
-    </v-col>
-    <v-col cols="12" xl="2" lg="4" md="4" sm="6">
+    </div>
+    <div>
       <v-select
         ref="select"
-        id="rated"
+        id="call-language"
         :items="[
           {
             value: 'english',
@@ -110,20 +118,24 @@
         clearable
         v-model="filters['score_language']"
         @change="handleLanguageChange"
-        small
+        dense
+        outlined
+        hide-details
       ></v-select>
-    </v-col>
-    <v-col cols="12" xl="2" lg="4" md="4" sm="6">
+    </div>
+    <div>
       <datepicker
-        :value="filters['date_range']"
+        compact
         @clear="onDateClear"
         @change="handleDateChange"
         v-model="filters['date_range']"
       ></datepicker>
-    </v-col>
-    <v-col cols="12" xl="2" lg="4" md="4" sm="6">
+    </div>
+    <div>
       <v-text-field
-        class="text-input"
+        dense
+        outlined
+        hide-details
         type="text"
         id="call_marchex_id"
         clearable
@@ -131,10 +143,12 @@
         v-model="filters['call_marchex_id']"
         label="Marchex ID"
       ></v-text-field>
-    </v-col>
-    <v-col cols="12" xl="2" lg="4" md="4" sm="6">
+    </div>
+    <div>
       <v-text-field
-        class="text-input"
+        dense
+        outlined
+        hide-details
         type="number"
         id="caller_number"
         clearable
@@ -142,8 +156,8 @@
         v-model="filters['caller_number']"
         label="Caller number"
       ></v-text-field>
-    </v-col>
-  </v-row>
+    </div>
+  </div>
 </template>
 <script lang="ts">
 import Vue from "vue";
@@ -323,51 +337,52 @@ export default Vue.extend({
   },
 });
 </script>
-<style lang="scss">
-.filters {
-  display: flex;
-  > div {
-    margin-right: 19px;
-    .v-select {
-      width: 160px;
-    }
-    .text-input {
-      width: 150px;
-    }
-  }
+<style scoped>
+.review-calls-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 148px), 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid var(--review-line);
+  border-radius: 12px;
+  background: var(--review-wash);
 }
 
-.date-picker-dialog {
-  margin-bottom: 10px;
+.review-calls-filters > div {
+  min-width: 0;
 }
 
-.filter-date-range-actions {
-  padding: 12px 20px;
-  border: 1px solid #eee;
-  border-left: none;
-  border-right: none;
+.review-calls-filters ::v-deep .v-input__slot {
+  min-height: 40px;
+  margin-bottom: 0;
+  border-radius: 8px;
+  background: var(--review-card);
 }
 
-.filter-date-range-actions {
-  .v-btn {
-    padding: 0px 6px;
-    font-size: 12px;
-    margin-right: 0px;
-    margin-bottom: 7px;
-    text-transform: initial;
-    height: 22px;
-  }
+.review-calls-filters ::v-deep .v-input__slot fieldset {
+  border-color: var(--review-line);
 }
-.v-input__icon--clear {
-  opacity: 0;
-  visibility: hidden;
+
+.review-calls-filters ::v-deep .v-input--is-focused fieldset {
+  border-color: var(--review-accent);
 }
-.v-input {
-  &:hover {
-    .v-input__icon--clear {
-      opacity: 1;
-      visibility: visible;
-    }
+
+.review-calls-filters ::v-deep .v-label,
+.review-calls-filters ::v-deep .v-select__selection,
+.review-calls-filters ::v-deep input {
+  font-size: .875rem;
+}
+
+.review-calls-filters ::v-deep .v-select__selection {
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 599px) {
+  .review-calls-filters {
+    gap: 8px;
+    padding: 8px;
   }
 }
 </style>
