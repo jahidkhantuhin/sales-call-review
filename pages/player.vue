@@ -9,10 +9,11 @@
             width="100%"
             alt=""
           />
+          <v-card-title>Call player</v-card-title>
+          <v-card-subtitle v-if="showcase">Synthetic sample audio</v-card-subtitle>
           <v-card-text>
             <div class="text-center">
-              <audio ref="audioEl" style="" controls>
-                <source :src="link" type="audio/mp3" @error="failedMp3" />
+              <audio ref="audioEl" :src="link" controls @error="failedMp3" @pause="isPlaying = false" @play="isPlaying = true">
                 Your browser does not support the audio tag.
               </audio>
               <v-tooltip bottom>
@@ -82,6 +83,7 @@ export default defineComponent({
     title: "Call Audio",
   },
   setup(props, { parent }) {
+    const showcase = process.env.SHOWCASE_MODE === "true";
     const audioEl = ref();
     const $swal = swalMixin((parent as any).$swal as any);
     const route = useRoute();
@@ -160,8 +162,7 @@ export default defineComponent({
           // fetchedUrl.value = resp.data.data.call_url ? resp.data.data.call_url : ''
           link.value = route.value.query?.url ? route.value.query?.url : resp.data.data.call_url
           showDisplay.value = true
-          audioEl.value.onpause = () => (isPlaying.value = false);
-          audioEl.value.onplay = () => (isPlaying.value = true);
+
         })
         .catch((resp) => {
           message(resp.response);
@@ -171,6 +172,11 @@ export default defineComponent({
     };
 
     onMounted(() => {
+      if (showcase) {
+        link.value = '/showcase-call.wav';
+        showDisplay.value = true;
+        return;
+      }
       // audioEl.value.onpause = () => (isPlaying.value = false);
       // audioEl.value.onplay = () => (isPlaying.value = true);
       if (route.value.query?.url) {
@@ -182,6 +188,7 @@ export default defineComponent({
     });
 
     return {
+      showcase,
       link,
       audioEl,
       failedMp3,

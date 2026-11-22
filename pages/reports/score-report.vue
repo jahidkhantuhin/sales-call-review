@@ -2,10 +2,12 @@
   <div>
     <v-row class="my-5">
       <v-col cols="12" md="12" lg="3">
-        <v-card color="default" rounded class="min-h-300">
+        <v-card rounded class="min-h-300">
           <v-card-title>Select a date range</v-card-title>
           <v-card-text>
-            <datepicker @clear="dates = []" v-model="dates"></datepicker>
+            <div class="review-filters mb-0">
+              <datepicker @clear="dates = []" v-model="dates" />
+            </div>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -21,7 +23,7 @@
           </v-card-actions>
         </v-card>
       </v-col>
-      <v-col md="12" lg="9">
+      <v-col cols="12" lg="9">
         <v-card v-if="generatingPaymentReportLoading">
           <v-card-text>
             <v-skeleton-loader
@@ -31,7 +33,7 @@
         </v-card>
         <v-card v-else class="min-h-300">
           <v-toolbar flat>
-            <v-toolbar-title> Report Details: </v-toolbar-title>
+            <v-toolbar-title> Report Details </v-toolbar-title>
             <v-spacer></v-spacer>
             <v-btn
               icon
@@ -83,6 +85,13 @@
             Date: From {{ dates[0] }} to {{ dates[1] }}.
           </v-card-text>
 
+          <v-card-text v-if="paymentReport.length" class="review-activity">
+            <h2 class="text-subtitle-1 font-weight-bold">Scored calls by client</h2>
+            <div v-for="row in paymentReport" :key="row.id || row.name">
+              <div class="d-flex justify-space-between"><span>{{ row.name }}</span><strong>{{ row.total_calls }}</strong></div>
+              <div class="review-activity-track" aria-hidden="true"><span class="review-activity-fill" :style="{ width: callShare(row.total_calls) + '%' }" /></div>
+            </div>
+          </v-card-text>
           <!-- summary -->
           <payment-report-detail
             :payRate="payRate"
@@ -104,6 +113,7 @@ import Datepicker from "~/components/forms/Datepicker.vue";
 import ReportGenerated from "~/components/ReportGenerated.vue";
 import PaymentReportDetail from "~/components/PaymentReportDetail.vue";
 import exportToXLS from "~/utils/exportToXLS";
+import { demoDate } from "~/showcase/fixtures";
 
 export default defineComponent({
   components: { Datepicker, PaymentReportDetail, ReportGenerated },
@@ -116,8 +126,9 @@ export default defineComponent({
     const payRate = ref(null);
     const loaded = ref(false);
     const store = useStore()
-    const dates = ref([]);
-    const paymentReport = ref([]);
+    const dates = ref<string[]>([]);
+    const paymentReport = ref<Array<{ id?: number; name: string; total_calls: number; total_call_duration: number; total_rating_time: number }>>([]);
+    const callShare = (count: number) => count / Math.max(1, ...paymentReport.value.map(row => row.total_calls)) * 100;
 
     const downloadReportLoading = ref(false);
 
@@ -149,6 +160,19 @@ export default defineComponent({
     };
 
     const downloadReport = function () {
+      if (process.env.SHOWCASE_MODE === 'true') {
+        const csv = [
+          ['Client', 'Calls', 'Call duration (seconds)', 'Rating time (seconds)'],
+          ...paymentReport.value.map(row => [row.name, row.total_calls, row.total_call_duration, row.total_rating_time]),
+        ].map(row => row.map(value => '"' + String(value).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+        const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'score-report.csv';
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        return;
+      }
       downloadReportLoading.value = true;
       setTimeout(() => {
         downloadReportLoading.value = false;
@@ -162,6 +186,10 @@ export default defineComponent({
 
     onMounted(() => {
       store.commit("setPageTitle", "Score Report")
+      if (process.env.SHOWCASE_MODE === "true") {
+        dates.value = [demoDate(-13), demoDate()];
+        fetchPaymentReport();
+      }
     })
 
     return {
@@ -169,6 +197,7 @@ export default defineComponent({
       dates,
       fetchPaymentReport,
       paymentReport,
+      callShare,
       payRate,
       generatingPaymentReportSuccess,
       loaded,

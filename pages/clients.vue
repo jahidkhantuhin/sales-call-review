@@ -9,8 +9,12 @@
                 <h2 class="my-0 py-0">Clients</h2>
               </v-col>
             </v-row>
-            <br />
-            <datatable :headers="headers" :moduleName="'Clients'" height="calc(100vh - 240px)"> </datatable>
+            <form class="review-filters review-client-filters mt-4" @submit.prevent="applySearch">
+              <v-text-field v-model="search" label="Client name" prepend-inner-icon="mdi-magnify" hide-details outlined dense />
+              <v-btn color="primary" type="submit">Search</v-btn>
+              <v-btn text :disabled="!search && !appliedSearch" @click="clearSearch">Clear</v-btn>
+            </form>
+            <datatable :key="appliedSearch" :headers="headers" module-name="Clients" />
           </v-card-text>
         </v-card>
       </v-col>
@@ -20,22 +24,36 @@
 
 <script lang="ts">
 import Vue from "vue";
+import Datatable from "~/components/Crud/Datatable.vue";
 import SecuredComponent from "~/components/SecuredComponent.vue";
 export default Vue.extend({
-  components: { SecuredComponent },
+  components: { Datatable, SecuredComponent },
   middleware: "auth",
   head: {
     title: "Clients"
   },
   beforeCreate() {
-    this.$store.commit('clients/resetClientsFetchRes')
+    this.$store.commit('clients/resetClientsFetchRes');
+    this.$store.commit('clients/removeClientsFilters');
   },
   mounted() {
-    this.$store.dispatch("clients/fetchClients");
     this.$store.commit("setPageTitle", "Clients")
+  },
+  methods: {
+    applySearch() {
+      this.appliedSearch = (this.search || "").trim();
+      this.$store.commit("clients/setClientsFilters", this.appliedSearch ? { name: encodeURIComponent(this.appliedSearch) } : {});
+      this.$store.commit("clients/updateClientsPagination", { name: "current_page", value: 1 });
+    },
+    clearSearch() {
+      this.search = "";
+      this.applySearch();
+    },
   },
   data() {
     return {
+      search: "",
+      appliedSearch: "",
       headers: [
         {
           text: "Id",

@@ -49,7 +49,8 @@
                   }}</nuxt-link>
                 </p>
               </v-form>
-              <recaptcha-powered></recaptcha-powered>
+              <p v-if="showcase" class="review-demo-note">Demo mode simulates the recovery email.</p>
+              <recaptcha-powered v-else />
             </v-card-text>
           </v-card>
         </ValidationObserver>
@@ -67,12 +68,15 @@ import Cookies from "js-cookie";
 
 import { VueReCaptcha } from "vue-recaptcha-v3";
 
-Vue.use(VueReCaptcha, {
-  siteKey: "6LcELpgaAAAAADDGP5AS8HHKA3rIHT9uCSA0fzIk",
-  loaderOptions: {
-    autoHideBadge: true,
-  },
-});
+const showcase = process.env.SHOWCASE_MODE === "true";
+if (!showcase) {
+  Vue.use(VueReCaptcha, {
+    siteKey: "6LcELpgaAAAAADDGP5AS8HHKA3rIHT9uCSA0fzIk",
+    loaderOptions: {
+      autoHideBadge: true,
+    },
+  });
+}
 
 const errorsForm: Array<string> = [];
 
@@ -130,7 +134,7 @@ export default defineComponent({
               .then((e) => {
                 loading.value = false;
                 showToast($swal, {
-                  title: translate(`alert.success.pwResetEmail`) as String,
+                  title: showcase ? "Demo recovery request received" : translate(`alert.success.pwResetEmail`),
                 });
               })
               .catch((e) => {
@@ -150,6 +154,7 @@ export default defineComponent({
     };
 
     return {
+      showcase,
       translations,
       email,
       loading,

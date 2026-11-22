@@ -6,7 +6,8 @@
         <v-btn
           icon
           color="white"
-          title="Download Report"
+          title="Download report"
+          aria-label="Download report"
           :loading="loading"
           @click="$emit('download')"
         >

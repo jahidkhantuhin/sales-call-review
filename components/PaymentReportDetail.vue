@@ -42,7 +42,7 @@ export default defineComponent({
   setup(props) {
     const headers = ref([
       {
-        text: 'Clilent',
+        text: 'Client',
         value: 'name',
       },
       {

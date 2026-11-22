@@ -222,7 +222,12 @@ export const actions = {
 
         if (nextCallId) {
           setTimeout(() => {
-            window.location.href = `/call/${nextCallId}${window.location.search}`;
+            const nextPath = `/call/${nextCallId}${window.location.search}`;
+            if (process.env.SHOWCASE_MODE === "true") {
+              _this.$router.push(nextPath);
+            } else {
+              window.location.href = nextPath;
+            }
           },1500)
         } else {
           (_this as any).$router.push(`/calls${window.location.search}`);

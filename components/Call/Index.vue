@@ -170,6 +170,10 @@ export default Vue.extend({
           _this.$store.commit("calls/setRatingCall", res.data);
           _this.$store.dispatch("calls/fetchRatedCall", id);
         },
+      }).catch((err: any) => {
+        if (err.response?.status !== 404) {
+          _this.$nuxt.error({ statusCode: 500, message: "Unable to load this call" });
+        }
       });
     }, 300);
   },

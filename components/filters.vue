@@ -1,6 +1,6 @@
 <template>
-  <v-row class="filters">
-    <v-col v-if="selectedLocation && selectedLocation.id" cols="8" xl="2" lg="2" md="3" sm="8">
+  <v-row class="filters review-filters">
+    <v-col v-if="selectedLocation && selectedLocation.id" cols="12" xl="2" lg="4" md="4" sm="6">
         <v-select
           id="rated"
           :items="campaignList"
@@ -13,7 +13,7 @@
           small
         ></v-select>
     </v-col>
-    <v-col cols="8" xl="2" lg="2" md="3" sm="8">
+    <v-col cols="12" xl="2" lg="4" md="4" sm="6">
       <v-select
         ref="select"
         id="rated"
@@ -40,7 +40,7 @@
         small
       ></v-select>
     </v-col>
-    <v-col cols="8" xl="2" lg="2" md="3" sm="8">
+    <v-col cols="12" xl="2" lg="4" md="4" sm="6">
       <v-select
         ref="select"
         id="rated"
@@ -63,7 +63,7 @@
         small
       ></v-select>
     </v-col>
-    <v-col cols="8" xl="2" lg="2" md="3" sm="8">
+    <v-col cols="12" xl="2" lg="4" md="4" sm="6">
       <v-select
         ref="select"
         id="rated"
@@ -86,7 +86,7 @@
         small
       ></v-select>
     </v-col>
-    <v-col cols="8" xl="2" lg="2" md="3" sm="8">
+    <v-col cols="12" xl="2" lg="4" md="4" sm="6">
       <v-select
         ref="select"
         id="rated"
@@ -113,7 +113,7 @@
         small
       ></v-select>
     </v-col>
-    <v-col cols="8" xl="2" lg="2" md="3" sm="8">
+    <v-col cols="12" xl="2" lg="4" md="4" sm="6">
       <datepicker
         :value="filters['date_range']"
         @clear="onDateClear"
@@ -121,7 +121,7 @@
         v-model="filters['date_range']"
       ></datepicker>
     </v-col>
-    <v-col cols="8" xl="2" lg="2" md="3" sm="8">
+    <v-col cols="12" xl="2" lg="4" md="4" sm="6">
       <v-text-field
         class="text-input"
         type="text"
@@ -132,7 +132,7 @@
         label="Marchex ID"
       ></v-text-field>
     </v-col>
-    <v-col cols="8" xl="2" lg="2" md="3" sm="8">
+    <v-col cols="12" xl="2" lg="4" md="4" sm="6">
       <v-text-field
         class="text-input"
         type="number"

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <CallScore v-if="$store.getters['calls/callLoadFailed'] === false"></CallScore>
+    <CallScore :key="$route.params.id" v-if="$store.getters['calls/callLoadFailed'] === false"></CallScore>
     <v-card v-else>
       <v-card-title> Call load failed. </v-card-title>
       <v-card-text> Something went wrong while loading rated call detail. </v-card-text>

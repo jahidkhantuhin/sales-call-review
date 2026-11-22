@@ -1,15 +1,12 @@
 <template>
   <v-row justify="center" align-content="center">
-    <v-col md="4">
+    <v-col cols="12" md="8" lg="6">
       <v-card>
         <v-card-text>
           <v-row>
             <v-col cols="12" md="4" class="text-center">
-              <v-avatar size="auto" max-width="100%">
-                <v-img
-                  src="https://randomuser.me/api/portraits/lego/6.jpg"
-                  alt="Profile Photo"
-                ></v-img>
+              <v-avatar size="72" color="primary" class="white--text text-h5">
+                {{ (user.first_name || '').charAt(0) }}{{ (user.last_name || '').charAt(0) }}
               </v-avatar>
               <v-btn color="primary" class="my-2" @click="handleEditRequest">
                 <v-icon left>mdi-pencil</v-icon>
@@ -17,7 +14,7 @@
               </v-btn>
             </v-col>
             <v-col md="8">
-              <span class="overline">{{ user.role }}</span>
+              <span class="review-badge review-badge--role">{{ user.role }}</span>
               <p class="display-1">
                 {{ user.first_name }} {{ user.last_name }}
               </p>
@@ -30,7 +27,8 @@
         </v-card-text>
       </v-card>
     </v-col>
-    <v-navigation-drawer v-model="dialog" width="400" absolute right temporary>
+    <v-navigation-drawer v-model="dialog" class="review-profile-drawer" width="420" fixed right temporary>
+      <v-toolbar flat><v-toolbar-title>Edit profile</v-toolbar-title><v-spacer /><v-btn icon aria-label="Close profile editor" @click="dialog = false"><v-icon>mdi-close</v-icon></v-btn></v-toolbar>
       <UserForm
         :editid="user.id"
         @done="handleDone"

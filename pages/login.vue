@@ -21,7 +21,7 @@
           >
             <ValidationObserver ref="obs" v-slot="{ invalid }">
               <v-card-text class="text-center mb-5">
-                <h1 class="welcome-heading">Welcome to WM4D's</h1>
+                <h1 class="welcome-heading">{{ showcase ? "Sales Call Review" : "Welcome to WM4D's" }}</h1>
                 <img
                   src="~static/login-header.png"
                   class="login-header-image"
@@ -79,7 +79,8 @@
                   </p>
                 </v-form>
               </v-card-text>
-              <recaptcha-powered></recaptcha-powered>
+              <p v-if="showcase" class="review-demo-note">Use any sample email and password to preview sign-in.</p>
+              <recaptcha-powered v-else />
             </ValidationObserver>
           </v-card>
         </v-expand-transition>
@@ -91,12 +92,15 @@
 <script lang="ts">
 import Vue from "vue";
 import { VueReCaptcha } from "vue-recaptcha-v3";
-Vue.use(VueReCaptcha, {
-  siteKey: "6LcELpgaAAAAADDGP5AS8HHKA3rIHT9uCSA0fzIk",
-  loaderOptions: {
-    autoHideBadge: true,
-  },
-});
+const showcase = process.env.SHOWCASE_MODE === "true";
+if (!showcase) {
+  Vue.use(VueReCaptcha, {
+    siteKey: "6LcELpgaAAAAADDGP5AS8HHKA3rIHT9uCSA0fzIk",
+    loaderOptions: {
+      autoHideBadge: true,
+    },
+  });
+}
 import swalMixin, { showToast } from "~/utils/swalMixin";
 
 import translations from "~/translations";
@@ -152,8 +156,10 @@ export default defineComponent({
       formErrors.value = [];
 
       // await $auth?.logout();
-      deleteAllCookies();
-      localStorage.clear();
+      if (process.env.SHOWCASE_MODE !== 'true') {
+        deleteAllCookies();
+        localStorage.clear();
+      }
 
       $auth
         ?.loginWith("laravelSanctum", {
@@ -178,6 +184,11 @@ export default defineComponent({
     };
 
     onMounted(async () => {
+      if (process.env.SHOWCASE_MODE === 'true') {
+        fetchingUser.value = false;
+        showForm.value = true;
+        return;
+      }
       await $axios
         ?.get('/sanctum/csrf-cookie', {
           headers: {
@@ -200,6 +211,7 @@ export default defineComponent({
     });
 
     return {
+      showcase,
       translations,
       email,
       password,

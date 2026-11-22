@@ -2,6 +2,7 @@ import colors from "vuetify/es5/util/colors";
 
 import en from "./lang/en-US";
 
+const showcase = process.env.SHOWCASE_MODE !== 'false';
 let API_URL;
 
 if (process.env.NODE_ENV === "development") {
@@ -12,6 +13,8 @@ if (process.env.NODE_ENV === "development") {
   API_URL = process.env.BASE_URL_PRODUCTION;
 }
 
+if (showcase) API_URL = 'https://showcase.example.test';
+
 const packageJSON = require("./package.json");
 
 console.log(`Building for ${process.env.NODE_ENV} with base URL of ${API_URL}`);
@@ -19,11 +22,12 @@ console.log(`Building for ${process.env.NODE_ENV} with base URL of ${API_URL}`);
 export default {
   // Disable server-side rendering (https://go.nuxtjs.dev/ssr-mode)
   ssr: false,
+  target: 'static',
 
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
-    titleTemplate: "%s - Call Analyzer",
-    title: "Call Analyzer",
+    titleTemplate: "%s | Sales Call Review",
+    title: "Sales Call Review",
     meta: [
       { charset: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
@@ -35,10 +39,10 @@ export default {
       {
         rel: "stylesheet",
         href:
-          "https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/4.4.95/css/materialdesignicons.min.css",
+          "/icons/materialdesignicons.min.css",
       },
     ],
-    script: [
+    script: showcase ? [] : [
       {
         type: "text/javascript",
         src: "//unpkg.com/xlsx/dist/shim.min.js",
@@ -59,12 +63,13 @@ export default {
   },
 
   // Global CSS (https://go.nuxtjs.dev/config-css)
-  css: ["~assets/main.css"],
+  css: ["~assets/main.css", "~/assets/review-workspace.css"],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
   plugins: [
     "~/plugins/vee-validate",
     "~/plugins/axios",
+    ...(showcase ? ["~/plugins/showcase"] : []),
     "~/plugins/moment",
     "~/plugins/usPhone",
     // "~/plugins/recaptcha",
@@ -97,7 +102,7 @@ export default {
   },
 
   // Modules (https://go.nuxtjs.dev/config-modules)
-  modules: ["@nuxtjs/auth-next", "vue-sweetalert2/nuxt"],
+  modules: [...(showcase ? [] : ["@nuxtjs/auth-next"]), "vue-sweetalert2/nuxt"],
   axios: {
     credentials: true,
   },
@@ -129,6 +134,7 @@ export default {
     theme: {
       dark: false,
       themes: {
+        light: { primary: '#3152C9', secondary: '#087D73', success: '#137455', error: '#B73550' },
         dark: {
           primary: colors.blue.darken2,
           accent: colors.grey.darken3,
@@ -156,12 +162,14 @@ export default {
   },
   generate: {
     // choose to suit your project
-    interval: 2000,
+    interval: showcase ? 0 : 2000,
+    ...(showcase ? { concurrency: 1, routes: Array.from({ length: 28 }, (_, index) => '/call/' + (2048 - index)) } : {}),
   },
 
   //env
   env: {
     baseURL: API_URL,
+    SHOWCASE_MODE: showcase ? 'true' : 'false',
     buildVersion: packageJSON.version,
   },
 

@@ -12,7 +12,7 @@
     >
       <v-card-text class="download-action">
         <v-spacer></v-spacer>
-        <v-btn icon :to="url" target="_blank" download
+        <v-btn icon :href="url" target="_blank" download aria-label="Download call audio"
           ><v-icon light class="download-icon grey--text">
             mdi-download
           </v-icon></v-btn
@@ -26,6 +26,7 @@
               :disabled="computedLoadingMp3Failed"
               class="skip-buttons"
               icon
+              aria-label="Back 10 seconds"
               @click="skip(-10)"
               ><v-icon>mdi-rewind</v-icon></v-btn
             >
@@ -37,6 +38,7 @@
               :dark="!computedLoadingMp3Failed"
               large
               color="blue"
+              :aria-label="isPlaying ? 'Pause call' : 'Play call'"
               @click="togglePlay"
             >
               <v-icon dark>
@@ -47,6 +49,7 @@
               :disabled="computedLoadingMp3Failed"
               class="skip-buttons"
               icon
+              aria-label="Forward 10 seconds"
               @click="skip()"
               ><v-icon>mdi-fast-forward</v-icon></v-btn
             >
@@ -66,6 +69,7 @@
       </v-card-text>
       <v-card-actions class="player-footer">
         <v-btn
+          aria-label="Call information"
           @click="$emit('loadCallInfo')"
           class="text-uppercase grey--text text-center mb-0 call-info-el"
           icon
@@ -258,8 +262,9 @@ export default Vue.extend({
       const waveFormInstance = _this.$refs.waveform;
       _this.waveform = WaveSurfer.create({
         container: waveFormInstance,
-        waveColor: "#818181",
-        progressColor: "#3688a2",
+        waveColor: "#8296be",
+        progressColor: "#3152c9",
+        cursorColor: "#4265df",
         height: 60,
         hideScrollbar: true,
         minPxPerSec: 1,

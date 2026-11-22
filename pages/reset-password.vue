@@ -14,17 +14,17 @@
               <p class="px-5 grey--text">
                 Please choose a new password to reset your account.
               </p>
-              <form class="mt-5 pt-1">
+              <form class="mt-5 pt-1" @submit.prevent="handleSubmit(submit)">
                 <v-text-field
-                  v-model="email"
+                  :value="email"
                   type="email"
                   :label="$t('fields.email')"
                   readonly
                   disabled
-                  @keypress.enter="handleSubmit(submit)"
                 ></v-text-field>
                 <ValidationProvider
-                  name="password"
+                  name="Password"
+                  vid="password"
                   rules="required|strong_password|min:8"
                   v-slot="{ errors, valid }"
                 >
@@ -35,8 +35,7 @@
                     v-model="password"
                     :dark="$store.state.theme.isDark"
                     :success="valid"
-                    @keypress.enter="handleSubmit(submit)"
-                    :error-messages="errors"
+                      :error-messages="errors"
                     required
                   ></v-text-field>
                 </ValidationProvider>
@@ -52,15 +51,14 @@
                     :dark="$store.state.theme.isDark"
                     :success="valid"
                     :error-messages="errors"
-                    @keypress.enter="handleSubmit(submit)"
-                    required
+                      required
                   ></v-text-field>
                 </ValidationProvider>
                 <v-btn
                   :disabled="invalid === true"
                   :loading="loading"
                   class="mr-4 primary mb-5 mt-2"
-                  @click="handleSubmit(submit)"
+                  type="submit"
                   block
                   large
                   >Reset Password
@@ -70,7 +68,8 @@
                   <nuxt-link to="/login" class="blue--text">Login</nuxt-link>
                 </p>
               </form>
-              <recaptcha-powered></recaptcha-powered>
+              <p v-if="showcase" class="review-demo-note">Demo reset for the sample account.</p>
+              <recaptcha-powered v-else />
             </v-card-text>
           </v-card>
         </ValidationObserver>
@@ -82,12 +81,15 @@
 <script lang="ts">
 import Vue from "vue";
 import { VueReCaptcha } from "vue-recaptcha-v3";
-Vue.use(VueReCaptcha, {
-  siteKey: "6LcELpgaAAAAADDGP5AS8HHKA3rIHT9uCSA0fzIk",
-  loaderOptions: {
-    autoHideBadge: true,
-  },
-});
+const showcase = process.env.SHOWCASE_MODE === "true";
+if (!showcase) {
+  Vue.use(VueReCaptcha, {
+    siteKey: "6LcELpgaAAAAADDGP5AS8HHKA3rIHT9uCSA0fzIk",
+    loaderOptions: {
+      autoHideBadge: true,
+    },
+  });
+}
 
 import RecaptchaPowered from "~/components/RecaptchaPowered.vue";
 import showErrorOnXHRFail from "~/utils/showErrorOnXHRFail";
@@ -114,9 +116,12 @@ export default defineComponent({
     const route = useRoute();
 
     const password = ref("");
-    const email = computed(() =>
-      ((route.value.query.email || "") as string).replaceAll(" ", "+")
-    );
+    const email = computed(() => {
+      const address = route.value.query.email;
+      return typeof address === "string"
+        ? address.replace(/ /g, "+")
+        : showcase ? "jahid@example.test" : "";
+    });
     const confirmPassword = ref("");
     const loading = ref(false);
 
@@ -149,6 +154,7 @@ export default defineComponent({
     };
 
     return {
+      showcase,
       password,
       confirmPassword,
       loading,

@@ -69,7 +69,7 @@ export default function (moduleName: String, options: any = {}) {
         path = path.replace(new RegExp("&&", "g"), "&");
 
         $axios
-          .get(path, { withCredentials: true })
+          .get(path, { withCredentials: true, params: payload?.params })
           .then((result: any) => {
             commit(`set${moduleName}FetchRes`, result);
             commit(`set${moduleName}FetchLoading`, false);

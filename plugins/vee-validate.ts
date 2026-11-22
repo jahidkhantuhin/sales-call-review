@@ -44,7 +44,7 @@ extend("confirmed", {
 
 extend("strong_password", {
   message: (filedname, input) => {
-    const value = input._value_;
+    const value = typeof input._value_ === "string" ? input._value_ : "";
     if (!hasNumber(value)) {
       return `This field must contain atleast one number`;
     }
@@ -63,6 +63,7 @@ extend("strong_password", {
     return "The password is too weak. Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and one special character";
   },
   validate: (value) => {
+    if (typeof value !== "string") return false;
     // var strongRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
     // return strongRegex.test(value);
     // return hasNumber;

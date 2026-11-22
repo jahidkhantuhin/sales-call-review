@@ -74,7 +74,7 @@
         <v-col cols="12" sm="6" md="9">
           <v-card elevation="0" >
             <v-toolbar elevation="0">
-              <v-toolbar-title v-if="selectedLocation" > Showing calls for {{selectedLocation && selectedLocation.name}} </v-toolbar-title>
+              <v-toolbar-title v-if="selectedLocation" > Calls · {{selectedLocation && selectedLocation.name}} </v-toolbar-title>
               <v-toolbar-title v-else>Calls</v-toolbar-title>
               <v-spacer></v-spacer>
               <v-btn :disabled="callsLoading" icon small class="mr-3" @click="loadCalls"> <v-icon>mdi-refresh</v-icon> </v-btn>
@@ -96,8 +96,8 @@
                 @update:options="handleChangeOptions"
                 :no-data-text="`No Calls found. Maybe a try a different search?`"
                 :items="calls"
-                height="calc(100vh - 340px)"
-                :server-items-length="100"
+                height="min(65vh, 660px)"
+                :server-items-length="callsPagination.total || 0"
                 :disable-pagination="true"
                 :disable-filtering="true"
                 :fixed-header="true"
@@ -110,8 +110,7 @@
                 </template>
                 <template v-slot:item.rated="props">
                   <span>
-                    <span v-if="props.item.rated">Yes</span>
-                    <span v-else>No</span>
+                    <span class="review-badge" :class="props.item.rated ? 'review-badge--done' : 'review-badge--pending'">{{ props.item.rated ? "Reviewed" : "Pending" }}</span>
                   </span>
                 </template>
                 <template v-slot:item.call_start="props">
@@ -127,8 +126,7 @@
                 </template>
                 <template v-slot:item.rated="props">
                   <span>
-                    <span v-if="props.item.rated">Yes</span>
-                    <span v-else>No</span>
+                    <span class="review-badge" :class="props.item.rated ? 'review-badge--done' : 'review-badge--pending'">{{ props.item.rated ? "Reviewed" : "Pending" }}</span>
                   </span>
                 </template>
                 <template v-slot:item.call_duration="props">

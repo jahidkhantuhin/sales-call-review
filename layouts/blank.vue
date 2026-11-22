@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app class="review-public">
     <v-main>
       <nuxt />
     </v-main>

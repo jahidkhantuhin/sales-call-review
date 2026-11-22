@@ -1,7 +1,9 @@
 <template>
-  <v-app>
+  <v-app class="review-workspace">
     <v-navigation-drawer
-      xclass="sidebar"
+      class="review-nav"
+      dark
+      width="240"
       v-model="drawer"
       v-if="isAuthenticated"
       app
@@ -9,7 +11,7 @@
       <v-list>
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title class="title"> Call Analyzer </v-list-item-title>
+            <v-list-item-title class="title"> Sales Call Review </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
 
@@ -37,7 +39,7 @@
       </div>
     </v-navigation-drawer>
     <v-app-bar fixed app class="app-navigation-bar" v-if="isAuthenticated">
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon aria-label="Toggle navigation" @click="drawer = !drawer"></v-app-bar-nav-icon>
 
       <v-toolbar-title v-text="title" style="text-transform: capitialize" />
       <v-spacer />
@@ -100,16 +102,7 @@
     <v-main
       :style="{ backgroundColor: $store.getters['theme/themeBackground'] }"
     >
-      <div
-        :style="{
-          width: '95%',
-          margin: 'auto',
-          height: 'calc(100vh - 64px)',
-          paddingTop: isAuthenticated ? '20px' : '',
-          'overflow-x': 'hidden',
-          'overflow-y': 'auto',
-        }"
-      >
+      <div class="review-frame">
         <nuxt />
       </div>
     </v-main>
@@ -164,7 +157,7 @@ export default Vue.extend({
   },
   watch: {
     isListeningAudio(val) {
-      this.registerInterval();
+      if (process.env.SHOWCASE_MODE !== 'true') this.registerInterval();
     },
     isAuthenticated() {
       if (this.isAuthenticated === true) {
@@ -185,6 +178,10 @@ export default Vue.extend({
 
   methods: {
     fetchUser() {
+      if (process.env.SHOWCASE_MODE === 'true') {
+        this.fetchingUser = false;
+        return;
+      }
       this.$axios
         .get("/sanctum/csrf-cookie", {
           headers: {
@@ -199,6 +196,10 @@ export default Vue.extend({
         })
     },
     async logout() {
+      if (process.env.SHOWCASE_MODE === 'true') {
+        this.$router.push('/login');
+        return;
+      }
       this.logoutLoading = true;
       await this.$auth.logout();
       this.$router.push("/login");
@@ -244,7 +245,7 @@ export default Vue.extend({
     },
   },
   async mounted() {
-    this.registerInterval();
+    if (process.env.SHOWCASE_MODE !== 'true') this.registerInterval();
     this.fetchingUser = true;
     this.fetchUser();
   },

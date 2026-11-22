@@ -5,13 +5,13 @@
       :loading="$store.getters[`${moduleNameLowerCase}/fetchLoading`]"
       :headers="headers"
       @update:options="handleChangeOptions"
-      :no-data-text="`No ${moduleName}. Maybe a try a different search?`"
+      :no-data-text="`No ${moduleName}. Try a different search.`"
       :items="list"
       :height="height"
       :server-items-length="
         $store.getters[`${moduleNameLowerCase}/fetchResPagination`][
-          'total_pages'
-        ] || 5
+          'total'
+        ] || 0
       "
       :disable-pagination="true"
       :disable-filtering="true"
@@ -117,7 +117,7 @@
             "
           >
             Showing {{ page * perpage - perpage + 1 }} -
-            {{ page * perpage }} from
+            {{ Math.min(page * perpage, $store.getters[`${moduleNameLowerCase}/fetchResPagination`].total) }} of
             {{
               $store.getters[`${moduleNameLowerCase}/fetchResPagination`][
                 "total"
@@ -155,7 +155,7 @@
               :length="
                 $store.getters[`${moduleNameLowerCase}/fetchResPagination`][
                   'total_pages'
-                ] || 5
+                ] || 1
               "
             ></v-pagination>
           </div>
@@ -214,7 +214,7 @@ export default Vue.extend({
     headers: {
       type: Array,
       required: true,
-      default: [],
+      default: () => [],
     },
     moduleName: {
       type: String,
@@ -446,9 +446,9 @@ export default Vue.extend({
     },
     fetchList() {
       // @ts-ignore
-      (this as any).$store.dispatch(
-        `${(this as any).moduleNameLowerCase}/fetch${(this as any).moduleName}`
-      );
+      this.$store.dispatch(`${this.moduleNameLowerCase}/fetch${this.moduleName}`, {
+        params: { page: this.page, limit: this.perpage },
+      });
     },
   },
   data() {
