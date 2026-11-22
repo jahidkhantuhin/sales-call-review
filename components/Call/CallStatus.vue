@@ -1,5 +1,11 @@
 <template>
-  <v-card light class="mx-auto call-status overflow-y-auto" outlined 
+  <v-card v-if="$store.getters['calls/isAlreadyRated']" class="call-status" outlined>
+    <v-card-title>Call outcome</v-card-title>
+    <v-card-text>
+      <span class="review-badge review-badge--done">{{ ratedCallStatus }}</span>
+    </v-card-text>
+  </v-card>
+  <v-card v-else light class="call-status overflow-y-auto" outlined
     :style="{ 
       background: $store.getters['theme/themeBackgroundCard'], overflow: 'hidden'}">
       <div>
@@ -144,9 +150,6 @@
           </v-card-text>
         </div>
       </div>
-      <div v-if="$store.getters['calls/isAlreadyRated'] === true">
-        <v-card-text> {{ ratedCallStatus }} </v-card-text>
-      </div>
       <!-- </div> -->
     <!-- <v-card-title>Call Status *</v-card-title>
     <v-card-text class="">
@@ -197,7 +200,7 @@
 import Vue from "vue";
 export default Vue.extend({
   mounted() {
-    this.callStatus = "";
+    if (!this.$store.getters["calls/isAlreadyRated"]) this.callStatus = "";
     // this.whoAnswered = "";
   },
   data() {
@@ -491,53 +494,37 @@ export default Vue.extend({
         return this.currentScoringCall["call_status"];
       },
     },
-    ratedCallStatus: {
-      get() {
-        // @ts-ignore
-        return this.callStatus === 'live_answer_booked' ? 'Live answer - Booked'
-        // @ts-ignore
-        : this.callStatus === 'live_answer_not_booked' ? 'Live answer - Not Booked'
-        // @ts-ignore
-        : this.callStatus === 'voice_mail_require_appointment' ? 'Voicemail (Appt require)'
-        // @ts-ignore
-        : this.callStatus === 'voice_mail_not_require_appointment' ? 'Voicemail (Appt not require)'
-        // @ts-ignore
-        : this.callStatus === 'no_answer_hangup' ? 'No answer/hang-up'
-        // @ts-ignore
-        : this.callStatus === 'confirmed_appointment' ? 'Confirmed Appt'
-        // @ts-ignore
-        : this.callStatus === 'wrong_number' ? 'Wrong number'
-        // @ts-ignore
-        : this.callStatus === 'cancel' ? 'Cancel'
-        // @ts-ignore
-        : this.callStatus === 'reschedule' ? 'Reschedule'
-        // @ts-ignore
-        : this.callStatus === 'info_request' ? 'Info Request'
-        // @ts-ignore
-        : this.callStatus === 'technical_issues' ? 'Technical Issues'
-        // @ts-ignore
-        : this.callStatus === 'live_answer_lead' ? 'Live answer lead'
-        // @ts-ignore
-        : this.callStatus === 'live_answer_no_lead' ? 'Live answer no lead'
-        // @ts-ignore
-        : this.callStatus === 'live_answer_lead_booked' ? 'Live answer lead booked'
-        // @ts-ignore
-        : this.callStatus === 'live_answer_lead_not_booked' ? 'Live answer lead not booked'
-        // @ts-ignore
-        : this.callStatus === 'reschedule_cancel_confirm' ? 'Reschedule / cancel / confirm'
-        // @ts-ignore
-        : this.callStatus === 'vendor' ? 'Vendor'
-        // @ts-ignore
-        : this.callStatus === 'others' ? 'Others'
-        // @ts-ignore
-        : this.callStatus === 'message_left_no_lead' ? 'Voicemail - Message left: no lead'
-        // @ts-ignore
-        : this.callStatus === 'message_left_lead' ? 'Voicemail - Message left: lead'
-        // @ts-ignore
-        : this.callStatus === 'voiceMail_no_lead' ? 'Voicemail - no lead'
-        : 'No status available'
-      },
-    }
+    ratedCallStatus(): string {
+      const review = this.$store.getters["calls/currentScoringCall"];
+      const labels: Record<string, string> = {
+        live_answer_booked: "Live answer - Booked",
+        live_answer_not_booked: "Live answer - Not Booked",
+        voice_mail_require_appointment: "Voicemail (Appt require)",
+        voice_mail_not_require_appointment: "Voicemail (Appt not require)",
+        no_answer_hangup: "No answer/hang-up",
+        confirmed_appointment: "Confirmed Appt",
+        wrong_number: "Wrong number",
+        cancel: "Cancel",
+        reschedule: "Reschedule",
+        info_request: "Info Request",
+        technical_issues: "Technical Issues",
+        live_answer_lead: "Live answer lead",
+        live_answer_no_lead: "Live answer no lead",
+        live_answer_lead_booked: "Live answer lead booked",
+        live_answer_lead_not_booked: "Live answer lead not booked",
+        reschedule_cancel_confirm: "Reschedule / cancel / confirm",
+        vendor: "Vendor",
+        others: "Others",
+        message_left_no_lead: "Voicemail - Message left: no lead",
+        message_left_lead: "Voicemail - Message left: lead",
+        voiceMail_no_lead: "Voicemail - no lead",
+        technical_issue: "Technical issue / spam or robocall",
+        voicemail_only: "Voicemail only",
+      };
+      const status = review.call_status;
+      if (status) return labels[status] || String(status).replace(/_/g, " ");
+      return review.can_understand === "no" ? "Language not understood" : "No outcome recorded";
+    },
     // stepTwoStatusLabels() {
     //   return this.stepOneCallStatus === 'live_answer' ? this.liveAnswerlabels :
     //   this.stepOneCallStatus === 'technical_issue' ? this.call_status = 'technical_issue' :

@@ -18,11 +18,38 @@
         <v-progress-linear v-if="loading" indeterminate color="primary" aria-label="Loading call review" />
         <div class="score-layout" :aria-busy="loading ? 'true' : 'false'">
           <call-info class="score-recording" />
-          <div class="score-column">
+          <template v-if="!loading && alreadyRated">
+            <div class="score-column">
+              <call-status />
+              <v-card v-if="staffFields.length" outlined>
+                <v-card-title>Office and staff</v-card-title>
+                <v-card-text>
+                  <dl class="saved-review-fields">
+                    <div v-for="field in staffFields" :key="field.label">
+                      <dt>{{ field.label }}</dt>
+                      <dd>{{ field.value }}</dd>
+                    </div>
+                  </dl>
+                </v-card-text>
+              </v-card>
+            </div>
+            <v-card v-if="leadFields.length" outlined>
+              <v-card-title>Lead details</v-card-title>
+              <v-card-text>
+                <dl class="saved-review-fields">
+                  <div v-for="field in leadFields" :key="field.label">
+                    <dt>{{ field.label }}</dt>
+                    <dd>{{ field.value }}</dd>
+                  </div>
+                </dl>
+              </v-card-text>
+            </v-card>
+          </template>
+          <div v-if="!loading && !alreadyRated" class="score-column">
             <call-status />
             <procedures />
           </div>
-          <div class="score-column">
+          <div v-if="!loading && !alreadyRated" class="score-column">
             <additional-info />
             <identify-office />
           </div>
@@ -92,6 +119,39 @@ export default Vue.extend({
     },
     alreadyRated(): boolean {
       return this.$store.getters["calls/isAlreadyRated"];
+    },
+    savedReview() {
+      return this.$store.getters["calls/currentScoringCall"];
+    },
+    leadFields(): Array<{ label: string; value: string }> {
+      const review = this.savedReview;
+      const procedures = this.$store.getters["procedures/fetchResData"] || [];
+      const procedure = procedures.find((item: { id: number; name: string }) =>
+        String(item.id) === String(review.procedure_id));
+      return [
+        { label: "Patient name", value: review.person_name },
+        { label: "Email", value: review.person_email },
+        { label: "Phone", value: review.person_phone },
+        { label: "Procedure", value: review.other_procedure || procedure?.name },
+        { label: "Appointment date", value: review.appt_date },
+        { label: "Appointment time", value: review.appt_time },
+        { label: "Review note", value: review.comment },
+      ].filter(field => field.value);
+    },
+    staffFields(): Array<{ label: string; value: string }> {
+      const review = this.savedReview;
+      const fields = [
+        { label: "Office identified", value: review.identify_office },
+        { label: "Staff member identified themselves", value: review.recipient_identify_themselves },
+        { label: "Staff member", value: review.recipient_name || review.who_answered },
+        { label: "Free consultation offered", value: review.consult_offered },
+        { label: "Office or doctor promoted", value: review.handler_pitch },
+        { label: "Caller name taken", value: review.caller_name_taken },
+      ].filter(field => field.value);
+      return fields.map(field => ({
+        ...field,
+        value: field.value === "yes" ? "Yes" : field.value === "no" ? "No" : field.value,
+      }));
     },
     callContext(): string {
       return [this.callInfo.client?.name, this.callInfo.location?.name].filter(Boolean).join(" · ");
@@ -197,6 +257,30 @@ export default Vue.extend({
 }
 .score-layout {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.saved-review-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap: 12px;
+}
+.saved-review-fields > div {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--review-wash);
+  overflow-wrap: anywhere;
+}
+.saved-review-fields dt {
+  color: var(--review-muted);
+  font-size: .8rem;
+}
+.saved-review-fields dd {
+  margin: 3px 0 0;
+  color: var(--review-text);
+  font-weight: 600;
+  white-space: pre-wrap;
+}
+.saved-review-fields > div:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
 }
 .score-recording {
   grid-column: 1 / -1;
