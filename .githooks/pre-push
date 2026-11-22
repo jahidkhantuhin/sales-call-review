@@ -1,0 +1,11 @@
+#!/bin/sh
+
+echo 'Running pre-push Jest tests...'
+yarn test --runInBand --coverage=false
+status=$?
+
+if [ "$status" -ne 0 ]; then
+  echo 'Push blocked because Jest did not pass.' >&2
+fi
+
+exit "$status"
