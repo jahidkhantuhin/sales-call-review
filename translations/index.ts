@@ -1,7 +1,7 @@
 export default {
   login: {
     heading: "Login",
-    text: "Login to your Call Analyzer account.",
+    text: "Sign in to Sales Call Review.",
     forgotPassword: "Forgot Password?",
   },
   forgotPassword: {

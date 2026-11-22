@@ -72,7 +72,7 @@ export default Vue.extend({
       loadingMp3: true,
       loadingMp3Failed: false,
       loadingMp3FailedMessage:
-        "The source server has an internal problem. Please file a wrike task about it.",
+        "Sales Call Review could not load the recording.",
       languageOptions: languages,
       not_understand: '',
       // url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',

@@ -2,6 +2,12 @@
 
 A Nuxt 2, TypeScript, and Vuetify workspace for reviewing and scoring sales calls, browsing client records, and checking scorer activity by client. Maintained by Jahid Khan Tuhin, full-stack JavaScript engineer.
 
+## Showcase overview
+
+![Sales Call Review demo showing the call queue, pending and reviewed calls, clients, score report, profile, and standalone player](docs/media/showcase-overview.gif)
+
+[Browse the full-resolution screenshots](docs/media/screenshots), including all 28 seeded call detail pages.
+
 ## Run the local showcase
 
 Use Node.js 22 and Yarn Classic. From the project folder, run:

@@ -1,92 +1,33 @@
 <template>
-  <v-container class="auth-page login-page" fill-height fluid>
-    <v-row align="center" justify="center">
-      <v-col md="7" sm="7" xs="12" lg="3">
-        <v-expand-transition>
-          <v-card class="text-center" v-if="fetchingUser">
-            <v-card-text>
-              <v-progress-circular :size="50" color="primary" indeterminate>
-              </v-progress-circular>
-            </v-card-text>
-            <v-card-text class="text-center">Checking User info</v-card-text>
-          </v-card>
-        </v-expand-transition>
-        <v-expand-transition>
-          <v-card
-            elevation="0"
-            v-if="showForm"
-            class="mt-5 login-card"
-            :style="{ background: $store.getters['theme/themeBackgroundCard'] }"
-            light
-          >
-            <ValidationObserver ref="obs" v-slot="{ invalid }">
-              <v-card-text class="text-center mb-5">
-                <h1 class="welcome-heading">{{ showcase ? "Sales Call Review" : "Welcome to WM4D's" }}</h1>
-                <img
-                  src="~static/login-header.png"
-                  class="login-header-image"
-                  alt=""
-                />
-                <h2 class="login-heading">{{ translations.login.heading }}</h2>
-
-                <v-form @submit="submit">
-                  <ValidationProvider
-                    name="Email"
-                    rules="required|email"
-                    v-slot="{ errors, valid }"
-                  >
-                    <v-text-field
-                      :label="translations.general.email"
-                      v-model="email"
-                      :error-messages="errors"
-                      :success="valid"
-                      name="email"
-                      :dark="$store.state.theme.isDark"
-                      required
-                    ></v-text-field>
-                  </ValidationProvider>
-                  <ValidationProvider
-                    name="Password"
-                    rules="required"
-                    v-slot="{ errors, valid }"
-                  >
-                    <v-text-field
-                      :label="translations.general.password"
-                      v-model="password"
-                      :error-messages="[...errors, ...formErrors]"
-                      :success="valid"
-                      :dark="$store.state.theme.isDark"
-                      type="password"
-                      name="password"
-                      required
-                    ></v-text-field>
-                  </ValidationProvider>
-
-                  <v-btn
-                    :loading="loading"
-                    type="submit"
-                    :disabled="invalid"
-                    class="mr-4 primary mb-5 mt-5"
-                    block
-                    large
-                  >
-                    {{ translations.login.heading }}
-                  </v-btn>
-                  <p class="text-right">
-                    <nuxt-link to="/forgot-password" class="blue--text">{{
-                      translations.forgotPassword.heading
-                    }}</nuxt-link>
-                  </p>
-                </v-form>
-              </v-card-text>
-              <p v-if="showcase" class="review-demo-note">Use any sample email and password to preview sign-in.</p>
-              <recaptcha-powered v-else />
-            </ValidationObserver>
-          </v-card>
-        </v-expand-transition>
-      </v-col>
-    </v-row>
-  </v-container>
+  <section class="project-public-screen">
+    <v-card outlined class="project-public-card">
+      <div class="project-public-brand">
+        <v-icon small>mdi-phone-in-talk-outline</v-icon>
+        <span>Sales Call Review</span>
+      </div>
+      <div v-if="fetchingUser" class="project-public-loading" role="status">
+        <v-progress-circular indeterminate color="primary" size="24" />
+        Checking your session
+      </div>
+      <template v-else-if="showForm">
+        <h1>Sign in</h1>
+        <ValidationObserver v-slot="{ invalid }">
+          <v-form class="project-public-form" @submit="submit">
+            <ValidationProvider name="Email" rules="required|email" v-slot="{ errors }">
+              <v-text-field v-model="email" name="email" label="Email" type="email" autocomplete="username" outlined :error-messages="errors" required />
+            </ValidationProvider>
+            <ValidationProvider name="Password" rules="required" v-slot="{ errors }">
+              <v-text-field v-model="password" name="password" label="Password" type="password" autocomplete="current-password" outlined :error-messages="[...errors, ...formErrors]" required />
+            </ValidationProvider>
+            <v-btn type="submit" color="primary" depressed block large :loading="loading" :disabled="invalid">Sign in</v-btn>
+            <nuxt-link class="project-public-link" to="/forgot-password">Forgot your password?</nuxt-link>
+          </v-form>
+        </ValidationObserver>
+      <p v-if="showcase" class="project-public-note">Use a sample email and password to preview sign-in.</p>
+      <recaptcha-powered v-else />
+      </template>
+    </v-card>
+  </section>
 </template>
 
 <script lang="ts">
@@ -224,31 +165,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style lang="scss" scoped src="~/styles/auth.page.scss"></style>
-
-<style lang="scss">
-.login-page {
-  .login-card {
-    padding: 26px 12px;
-  }
-  .welcome-heading {
-    font-family: Futura Bk BT;
-    font-style: normal;
-    font-weight: normal;
-    font-size: 18px;
-    line-height: 22px;
-  }
-  .login-heading {
-    font-family: Futura Bk BT;
-    font-style: normal;
-    font-weight: normal;
-    font-size: 24px;
-    line-height: 29px;
-  }
-  .login-header-image {
-    width: 100%;
-    margin: 10px 0;
-  }
-}
-</style>

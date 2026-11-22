@@ -20,6 +20,12 @@ const packageJSON = require("./package.json");
 console.log(`Building for ${process.env.NODE_ENV} with base URL of ${API_URL}`);
 
 export default {
+  watchers: {
+    chokidar: {
+      // Documentation media is outside the application build.
+      ignored: /(?:^|[\\/])docs[\\/]media(?:[\\/]|$)/,
+    },
+  },
   // Disable server-side rendering (https://go.nuxtjs.dev/ssr-mode)
   ssr: false,
   target: 'static',

@@ -1,9 +1,7 @@
 <template>
   <v-card
     light
-    :class="{
-      'mx-auto procedures procedures-card': true,
-    }"
+    class="procedures procedures-card"
     :style="{
       background: $store.getters['theme/themeBackgroundCard'],
     }"
@@ -46,42 +44,21 @@
             "
             v-model="procedure_id"
           >
-            <v-row>
-              <v-col
-                class="radio-column"
-                cols="12"
-                sm="6"
-                md="6"
-                lg="6"
-                xl="4"
-                v-for="(procedure, index) in list"
-                :key="index"
+            <div class="procedure-options">
+              <v-radio
+                v-for="procedure in list"
+                :key="procedure.id"
+                :dark="$vuetify.theme.isDark"
+                :value="procedure.id"
               >
-                <v-radio
-                  :dark="$vuetify.theme.isDark"
-                  :value="procedure.id"
-                  class="my-1 mt-n1"
-                  
-                >
-                  <span slot="label" class="">
+                <template #label>
+                  <span>
                     {{ procedure.name }}
-                    <!-- <label class="extra">
-                      {{ procedure.id == 1 ? 'Full Mouth Reconstruction, All-On-6, Fix on 4 or Fix on 6, Full Arch Implant'
-                      : procedure.id == 4 ? 'Metal Braces, Traditional Braces, Orthodontics'
-                      : procedure.id == 8 ? 'Crowning, Caps'
-                      : procedure.id == 9 ? '"Fix Denture In Place", "Secure My Denture", Whole Dental Work At The Bottom, Whole Dental Work At The Top, snap on denture, overdenture'
-                      : procedure.id == 10 ? 'Fake Teeth, Set of Teeth, Artificial Teeth, Dental Plate'
-                      : procedure.id == 14 ? 'Single Implant, Single Tooth Replacement'
-                      : procedure.id == 15 ? 'Clear Aligners, Clear Braces, Invisible Braces'
-                      : procedure.id == 18 ? 'Tooth Removal'
-                      : procedure.id == 27 ? 'Lumineers, snap on smile'
-                      : '' }}</label> -->
-                      <label class="extra">
-                      {{ procedure.desc }}</label>
+                    <span v-if="procedure.desc" class="extra">{{ procedure.desc }}</span>
                   </span>
-                </v-radio>
-              </v-col>
-            </v-row>
+                </template>
+              </v-radio>
+            </div>
           </v-radio-group>
         </ValidationProvider>
       </v-card-text>
@@ -156,13 +133,28 @@ export default Vue.extend({
 </script>
 
 <style scoped>
+.procedures {
+  width: 100%;
+  min-width: 0;
+}
 .procedure-heading {
   justify-content: space-between;
   gap: 10px 16px;
 }
 .procedure-search {
-  flex: 0 1 240px;
-  min-width: min(100%, 200px);
+  flex: 1 1 200px;
+  min-width: 0;
+  max-width: 100%;
+}
+.procedure-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 185px), 1fr));
+  gap: 8px 16px;
+}
+.procedure-options .v-radio {
+  min-width: 0;
+  margin-bottom: 0;
+  overflow-wrap: anywhere;
 }
 .body {
   max-height: 22rem;

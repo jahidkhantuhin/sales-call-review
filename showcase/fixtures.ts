@@ -11,7 +11,7 @@ export function createFixtures() {
     scope: ['view calls', 'view clients', 'score call'],
   }
   const clients = ['Northstar Dental', 'Harborview Wellness', 'Cedar Grove Plumbing'].map((name, index) => ({
-    id: index + 1, name, source: 'marchex', account_id: 'DEMO-' + (101 + index), created_at: demoDate(-36) + 'T15:00:00Z',
+    id: index + 1, name, source: 'Demo import', account_id: 'DEMO-' + (101 + index), created_at: demoDate(-36) + 'T15:00:00Z',
   }))
   const locations = ['Northstar Downtown', 'Harborview East', 'Cedar Grove Main', 'Northstar West'].map((name, index) => ({
     id: index + 1, name, client: clients[index % 3], client_id: clients[index % 3].id,

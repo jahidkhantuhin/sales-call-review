@@ -1,65 +1,26 @@
 <template>
-  <v-container fill-height fluid>
-    <v-row align="center" justify="center">
-      <v-col md="3" sm="6" xs="12">
-        <ValidationObserver ref="obs" v-slot="{ invalid, handleSubmit }">
-          <v-card
-            class="mt-5 pt-5 forgot-password-card text-center"
-            :style="{ background: $store.getters['theme/themeBackgroundCard'] }"
-            elevation="0"
-            light
-          >
-            <v-card-text>
-              <h2 class="heading mb-4 grey--text auth-form-heading">
-                {{ translations.forgotPassword.heading }}
-              </h2>
-              <p class="px-5 grey--text auth-form-paragraph">
-                {{ translations.forgotPassword.text }}
-              </p>
-              <v-form class="mt-5 pt-1" @submit="submit">
-                <ValidationProvider
-                  name="Email"
-                  rules="required|email"
-                  v-slot="{ errors, valid }"
-                >
-                  <v-text-field
-                    :label="translations.general.email"
-                    v-model="email"
-                    :dark="$store.state.theme.isDark"
-                    :success="valid"
-                    :error-messages="errors"
-                    required
-                  ></v-text-field>
-                </ValidationProvider>
-
-                <v-btn
-                  :loading="loading"
-                  type="submit"
-                  class="mr-4 primary mb-5 mt-2"
-                  :disabled="invalid"
-                  block
-                  large
-                >
-                  {{ translations.general.reset }}
-                </v-btn>
-                <p class="text-right">
-                  Go back to
-                  <nuxt-link to="/login" class="blue--text">{{
-                    translations.general.login
-                  }}</nuxt-link>
-                </p>
-              </v-form>
-              <p v-if="showcase" class="review-demo-note">Demo mode simulates the recovery email.</p>
-              <recaptcha-powered v-else />
-            </v-card-text>
-          </v-card>
-        </ValidationObserver>
-      </v-col>
-    </v-row>
-  </v-container>
+  <section class="project-public-screen">
+    <v-card outlined class="project-public-card">
+      <div class="project-public-brand">
+        <v-icon small>mdi-phone-in-talk-outline</v-icon>
+        <span>Sales Call Review</span>
+      </div>
+      <h1>Recover password</h1>
+      <p class="project-public-description">Enter the email address associated with your account.</p>
+      <ValidationObserver v-slot="{ invalid }">
+        <v-form class="project-public-form" @submit="submit">
+          <ValidationProvider name="Email" rules="required|email" v-slot="{ errors }">
+            <v-text-field v-model="email" label="Email" name="email" type="email" autocomplete="email" outlined :error-messages="errors" required />
+          </ValidationProvider>
+          <v-btn type="submit" color="primary" depressed block large :loading="loading" :disabled="invalid">Send reset link</v-btn>
+          <nuxt-link class="project-public-link" to="/login">Back to sign in</nuxt-link>
+        </v-form>
+      </ValidationObserver>
+      <p v-if="showcase" class="project-public-note">Demo mode simulates the recovery email.</p>
+      <recaptcha-powered v-else />
+    </v-card>
+  </section>
 </template>
-
-
 
 <script lang="ts">
 import Vue from "vue";
@@ -163,16 +124,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style lang="scss">
-.forgot-password-card {
-  border-radius: 5px !important;
-  .heading {
-    color: #000;
-    font-size: 28px;
-  }
-  p {
-    font-size: 15px;
-  }
-}
-</style>
