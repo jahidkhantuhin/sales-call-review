@@ -2,40 +2,39 @@
   <v-card
     light
     :class="{
-      'mx-auto procedures procedures-card pb-5': true,
+      'mx-auto procedures procedures-card': true,
     }"
     :style="{
       background: $store.getters['theme/themeBackgroundCard'],
-      height: height,
-      overflow: 'hidden',
     }"
     outlined
   >
-    <v-card-title class="d-flex">
+    <v-card-title class="procedure-heading">
       <span
         :class="{
           heading: true,
           'disabled-text':
             $store.getters['calls/rules']['procedure_id'] !== 'required',
-            'mt-n4': true,
         }"
       >
         Procedures <span style="color: red">{{$store.getters['calls/rules']['procedure_id'] === 'required' ? '*' : ''}}</span>
       </span>
-      <v-spacer></v-spacer>
       <v-text-field
-        class="search-input mt-n3 mb-n6"
-        id="search"
+        class="procedure-search"
+        id="procedure-search"
+        prepend-inner-icon="mdi-magnify"
+        hide-details
         clearable
         outlined
         dense
         v-model="search"
-        label="Search Proceedures"
+        label="Search procedures"
       ></v-text-field>
     </v-card-title>
 
     <div class="body">
-      <v-card-text class="py-0">
+      <v-card-text class="pt-2">
+        <p v-if="!list.length" class="mb-0">No matching procedures.</p>
         <ValidationProvider
           name="procedure_id"
           :rules="$store.getters['calls/rules']['procedure_id']"
@@ -114,24 +113,16 @@ export default Vue.extend({
         (c: any) => c.id === this.currentScoringCall.procedure_id
       )[0];
     },
-    height () {
-        switch (this.$vuetify.breakpoint.name) {
-          case 'xs': return 220
-          case 'sm': return 400
-          case 'md': return 500
-          case 'lg': return 600
-          case 'xl': return 800
-        }
-      },
     list() {
       const list = this.$store.getters[`procedures/fetchResData`];
       // const list:any = this.customProcedures;
       const filteredList = list.filter((procedure: any) => {
         return procedure.name != 'Other' && procedure.name != 'Lumineers' && procedure.name != 'Toothache' && procedure.name != 'Tooth Colored Restoration' && procedure.name != 'Bruxism/Grinding'
       });
-      if (this.search) {
+      const query = (this.search || "").trim().toLowerCase();
+      if (query) {
         return filteredList.filter((c: any) => {
-          return c.desc.toLowerCase().includes(this.search.toLowerCase());
+          return [c.name, c.desc].some((text) => text?.toLowerCase().includes(query));
         });
       } else return filteredList;
     },
@@ -164,52 +155,25 @@ export default Vue.extend({
 });
 </script>
 
-<style lang="scss">
-.procedures {
-  border-radius: 5px !important;
-  border: none !important;
-  .body {
-    overflow-y: auto;
-    height: 78%;
-    margin-top: -13px;
-  }
-  @media (min-width: 1600px) {
-    .col-lg-6 {
-      flex: 0 0 33.33333%;
-      max-width: 33.33333%;
-    }
-  }
+<style scoped>
+.procedure-heading {
+  justify-content: space-between;
+  gap: 10px 16px;
 }
-/* width */
-::-webkit-scrollbar {
-  width: 5px;
+.procedure-search {
+  flex: 0 1 240px;
+  min-width: min(100%, 200px);
 }
-
-/* Track */
-::-webkit-scrollbar-track {
-  background: #eaeaea;
-  border-radius: 10px;
+.body {
+  max-height: 22rem;
+  overflow-y: auto;
 }
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: #263238;
-  border-radius: 10px;
+.extra {
+  display: none;
 }
-.search-input {
-  width: 50px;
-}
-.heading {
-  position: relative;
-  top: -12px;
-}
-.extra { 
-    display: none;
-}
-
-label:hover .extra {
-    display: inline-block;
-    background-color: #f2f2f2; 
-    color: #0040ff;
+label:hover .extra,
+label:focus-within .extra {
+  display: block;
+  color: var(--review-muted);
 }
 </style>

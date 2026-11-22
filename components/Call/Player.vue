@@ -1,149 +1,54 @@
 <template>
   <div>
-    <v-card
-      light
-      :class="{
-        player: true,
-        'dialog-player': isInsideDialog,
-      }"
-      elevation="0"
-      :style="{ 
-        background: $store.getters['theme/themeBackground'],}"
-    >
-      <v-card-text class="download-action">
-        <v-spacer></v-spacer>
-        <v-btn icon :href="url" target="_blank" download aria-label="Download call audio"
-          ><v-icon light class="download-icon grey--text">
-            mdi-download
-          </v-icon></v-btn
-        >
-      </v-card-text>
-      <v-card-text class="main-player">
-        <div v-if="computedLoadingMp3Failed === false">
+    <v-card class="score-player" outlined>
+      <div class="score-player-header">
+        <h2>Recording</h2>
+        <div class="score-player-tools">
+          <v-btn icon aria-label="Call information" @click="$emit('loadCallInfo')">
+            <v-icon>mdi-information-outline</v-icon>
+          </v-btn>
+          <v-btn v-if="url" icon :href="url" target="_blank" download aria-label="Download call audio">
+            <v-icon>mdi-download-outline</v-icon>
+          </v-btn>
+        </div>
+      </div>
+      <div v-if="!computedLoadingMp3Failed" class="score-player-body">
+        <div class="score-waveform" :class="{ 'score-waveform-loading': loadingMp3 }">
           <div ref="waveform"></div>
-          <div class="player-action-buttons">
-            <v-btn
-              :disabled="computedLoadingMp3Failed"
-              class="skip-buttons"
-              icon
-              aria-label="Back 10 seconds"
-              @click="skip(-10)"
-              ><v-icon>mdi-rewind</v-icon></v-btn
-            >
-            <v-btn
-              :loading="loadingMp3"
-              :disabled="computedLoadingMp3Failed"
-              class="mx-2 play-pause-button mb-2"
-              fab
-              :dark="!computedLoadingMp3Failed"
-              large
-              color="blue"
-              :aria-label="isPlaying ? 'Pause call' : 'Play call'"
-              @click="togglePlay"
-            >
-              <v-icon dark>
-                {{ isPlaying ? " mdi-pause" : " mdi-play" }}
-              </v-icon>
+          <span v-if="loadingMp3" role="status">Loading audio…</span>
+        </div>
+        <div class="score-player-footer">
+          <div class="score-transport">
+            <v-btn icon :disabled="loadingMp3" aria-label="Back 10 seconds" @click="skip(-10)">
+              <v-icon>mdi-rewind-10</v-icon>
             </v-btn>
-            <v-btn
-              :disabled="computedLoadingMp3Failed"
-              class="skip-buttons"
-              icon
-              aria-label="Forward 10 seconds"
-              @click="skip()"
-              ><v-icon>mdi-fast-forward</v-icon></v-btn
-            >
+            <v-btn icon color="primary" :disabled="loadingMp3" :aria-label="isPlaying ? 'Pause call' : 'Play call'" @click="togglePlay">
+              <v-icon size="26">{{ isPlaying ? 'mdi-pause-circle' : 'mdi-play-circle' }}</v-icon>
+            </v-btn>
+            <v-btn icon :disabled="loadingMp3" aria-label="Forward 10 seconds" @click="skip()">
+              <v-icon>mdi-fast-forward-10</v-icon>
+            </v-btn>
+            <span class="score-time">{{ formatTime(position) }} / {{ formatTime(duration) }}</span>
           </div>
+          <v-btn
+            v-if="callLanguageIs !== 'spanish' && !isAlreadyRated"
+            small
+            text
+            color="primary"
+            :aria-pressed="currentScoringCall.can_understand === 'no'"
+            @click="toggleUnderstand"
+          >
+            {{ canUnderstandText }}
+          </v-btn>
         </div>
-
-        <v-alert
-          v-else
-          border="left"
-          color="red"
-          elevation="10"
-          type="error"
-          class="mt-3"
-        >
-          {{ loadingMp3FailedMessage }}
-        </v-alert>
+      </div>
+      <v-card-text v-else>
+        <v-alert dense text type="error" class="mb-0">{{ loadingMp3FailedMessage }}</v-alert>
       </v-card-text>
-      <v-card-actions class="player-footer">
-        <v-btn
-          aria-label="Call information"
-          @click="$emit('loadCallInfo')"
-          class="text-uppercase grey--text text-center mb-0 call-info-el"
-          icon
-        >
-          <v-icon light>mdi-information-outline</v-icon>
-        </v-btn>
-        <v-spacer></v-spacer>
-        <!-- <v-container fluid v-if="!loadingMp3Failed">
-          <v-checkbox v-model="not_understand">
-            <template v-slot:label>
-              <small>
-                I can't understand the language
-              </small>
-            </template>
-          </v-checkbox>
-        </v-container> -->
-        <!-- <v-radio-group
-            v-model="language"
-            row
-            v-if="!loadingMp3Failed"
-          >
-            <v-radio label="I can't understand the language" value="spanish">
-              <span slot="label"> I can't understand the language </span>
-            </v-radio>
-          </v-radio-group> -->
-        <div v-if="callLanguageIs != 'spanish'">
-        <span v-if="!computedLoadingMp3Failed">
-          
-          <a class="understand-text" @click="toggleUnderstand">{{
-            canUnderstandText
-          }}</a>
-
-          <!-- <ValidationProvider
-            name="person_name"
-            v-if="isAlreadyRated === false"
-            :rules="$store.getters['calls/rules']['language']"
-            v-slot="{ errors, valid }"
-          >
-            <v-combobox
-              :error-messages="errors"
-              v-if="currentScoringCall['can_understand'] === 'no'"
-              :error="!valid"
-              :value="language"
-              v-model="language"
-              placeholder="Language"
-              style="max-width: 120px"
-              item-value="code"
-              item-text="name"
-              :items="languageOptions"
-            ></v-combobox>
-          </ValidationProvider>
-          <span v-else>
-            {{ currentScoringLanguage }}
-          </span> -->
-        </span>
-        </div>
-        <!-- <v-btn
-        text
-        rounded
-        icon
-        v-if="loadingMp3Failed === false"
-        @click.stop="$emit('dialog')"
-        @click="handelExpandToggle"
-      >
-        <v-icon v-if="dialog">mdi mdi-arrow-collapse</v-icon>
-        <v-icon v-else>mdi mdi-arrow-expand</v-icon>
-      </v-btn> -->
-      </v-card-actions>
     </v-card>
   </div>
 </template>
 <script lang="ts">
-import { type } from "node:os";
-import { resourceUsage } from "node:process";
 import Vue from "vue";
 
 const WaveSurfer = require("wavesurfer.js");
@@ -161,6 +66,7 @@ export default Vue.extend({
   data() {
     return {
       waveform: null,
+      position: 0,
       isPlaying: false,
       isSendingPing: false,
       loadingMp3: true,
@@ -241,6 +147,10 @@ export default Vue.extend({
     }
   },
   methods: {
+    formatTime(seconds: string | number) {
+      const total = Math.max(0, Math.floor(Number(seconds) || 0));
+      return Math.floor(total / 60) + ":" + String(total % 60).padStart(2, "0");
+    },
     toggleUnderstand() {
       if (this.isAlreadyRated === false) {
         this.$store.commit("calls/setScoreCallInformation", {
@@ -265,7 +175,10 @@ export default Vue.extend({
         waveColor: "#8296be",
         progressColor: "#3152c9",
         cursorColor: "#4265df",
-        height: 60,
+        height: 56,
+        barWidth: 2,
+        barGap: 2,
+        barRadius: 2,
         hideScrollbar: true,
         minPxPerSec: 1,
         backend: "MediaElement",
@@ -284,8 +197,13 @@ export default Vue.extend({
         _this.loadingMp3Failed = false;
       });
 
+      _this.waveform.on("seek", () => {
+        _this.position = _this.waveform.getCurrentTime();
+      });
+
       _this.waveform.on("finish", () => {
         _this.isPlaying = false;
+        _this.position = _this.waveform.getCurrentTime();
         _this.$axios.get("/ping?fal");
       });
 
@@ -309,7 +227,8 @@ export default Vue.extend({
 
       // @ts-ignore
       _this.waveform.on("audioprocess", (e) => {
-        const currenTime = new Number(e).toFixed(0).toString();
+        _this.position = Math.floor(e);
+        const currenTime = Number(e).toFixed(0);
         if (arr.includes(currenTime) && _this.isSendingPing === false) {
           clearTimeout(timeout);
           timeout = setTimeout(() => {
@@ -375,6 +294,7 @@ export default Vue.extend({
   },
   beforeDestroy() {
     const _this: any = this;
+    window.removeEventListener("resize", _this.refreshWave);
     if (_this.waveform && _this.waveform.destroy) {
       _this.waveform.destroy();
     }
@@ -387,57 +307,53 @@ export default Vue.extend({
   },
 });
 </script>
-
-<style lang="scss" scoped>
-.v-card.dialog-player {
-  padding-top: 10px !important;
+<style scoped>
+.score-player-header,
+.score-player-footer,
+.score-player-tools,
+.score-transport {
+  display: flex;
+  align-items: center;
 }
-.v-card.player {
-  height: 250px;
-  .call-info-el {
-    cursor: pointer;
-  }
-  .language-understand-toggle {
-    cursor: pointer;
-  }
-  .default-player {
-    width: 100%;
-    margin-top: 20px;
-    margin-bottom: 15px;
-  }
-  .play-pause-button {
-    position: relative;
-    top: -5px;
-  }
+.score-player-header,
+.score-player-footer {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 12px;
 }
-.player-action-buttons {
-  text-align: center;
-  padding-top: 14px;
-  .skip-buttons {
-    position: relative;
-    top: -5px;
-  }
+.score-player-header {
+  padding: 6px 14px 0;
 }
-.download-action {
-  height: 40px;
-  padding: 7px;
-  text-align: right;
-  padding-right: 12px;
+.score-player-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
 }
-.player-footer {
-  height: 32px;
+.score-player-body {
+  padding: 0 14px 8px;
 }
-.main-player {
-  height: 160px;
+.score-waveform {
+  position: relative;
+  min-height: 56px;
   overflow: hidden;
+  border-radius: 8px;
+  background: var(--review-wash);
 }
-.understand-text {
-  display: inline-block;
-  margin-right: 10px;
+.score-waveform-loading span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--review-muted);
+  pointer-events: none;
 }
-.language-selector {
-  input {
-    font-size: 14px;
-  }
+.score-transport {
+  gap: 2px;
+}
+.score-time {
+  margin-left: 6px;
+  color: var(--review-muted);
+  font-size: .8rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 </style>

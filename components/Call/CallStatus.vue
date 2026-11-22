@@ -3,14 +3,15 @@
     :style="{ 
       background: $store.getters['theme/themeBackgroundCard'], overflow: 'hidden'}">
       <div>
-          <!-- <v-card-title class="mt-n4 mb-n1">Call Status *</v-card-title> -->
+          <!-- <v-card-title>Call Status *</v-card-title> -->
           <v-row>
             <v-col cols="10" md="8" lg="10">
-              <v-card-title class="mt-n4 mb-n1">Call Status <span style="color: red"> *</span></v-card-title>
+              <v-card-title>Call Status <span style="color: red"> *</span></v-card-title>
             </v-col>
             <v-col>
               <v-btn
                 icon
+                aria-label="Reset call status"
                 @click="resetCallStatus"
               >
                 <v-icon>mdi-cached</v-icon>
@@ -20,7 +21,7 @@
         
       </div>
       <div v-if="$store.getters['calls/isAlreadyRated'] === false">
-        <v-card-text class="mt-n8">
+        <v-card-text class="pt-1">
             <ValidationProvider name="call_status" :rules="$store.getters['calls/rules']['call_status']" v-slot="{ errors, valid }">
               <v-radio-group
                 class="radio-list"
@@ -42,14 +43,15 @@
             </ValidationProvider>
         </v-card-text>
       <!-- <div v-if="step2 || step3 || step2 && step3" class="mt-n6" style="border-style: inset; background-color: #F0EDEC"> -->
-        <div v-if="step2" class="mt-n6" style="background-color: #FAF7F6">
+        <div v-if="step2" class="score-outcome-step">
           <!-- <v-row>
             <v-col cols="10" md="8" lg="10">
-              <v-card-title class="mt-n4 mb-n1">Call Status *</v-card-title>
+              <v-card-title>Call Status *</v-card-title>
             </v-col>
             <v-col>
               <v-btn
                 icon
+                aria-label="Reset call status"
                 @click="resetCallStatus"
               >
                 <v-icon>mdi-cached</v-icon>
@@ -77,14 +79,15 @@
             </ValidationProvider>
           </v-card-text>
         </div>
-        <div v-if="step3" class="mt-n6" style="background-color: #F0EDEC">
+        <div v-if="step3" class="score-outcome-step">
           <!-- <v-row>
             <v-col cols="10" md="8" lg="10">
-              <v-card-title class="mt-n4 mb-n1">Call Status *</v-card-title>
+              <v-card-title>Call Status *</v-card-title>
             </v-col>
             <v-col>
               <v-btn
                 icon
+                aria-label="Reset call status"
                 @click="resetCallStatus"
               >
                 <v-icon>mdi-cached</v-icon>
@@ -145,7 +148,7 @@
         <v-card-text> {{ ratedCallStatus }} </v-card-text>
       </div>
       <!-- </div> -->
-    <!-- <v-card-title class="mt-n4 mb-n1">Call Status *</v-card-title>
+    <!-- <v-card-title>Call Status *</v-card-title>
     <v-card-text class="">
       <ValidationProvider name="call_status" :rules="$store.getters['calls/rules']['call_status']" v-slot="{ errors, valid }">
         <v-radio-group
@@ -558,9 +561,10 @@ export default Vue.extend({
 
 <style lang="scss">
 .call-status {
-  border-radius: 5px !important;
-  border: none !important;
-  height: 250px;
+  .score-outcome-step {
+    border-top: 1px solid var(--review-line);
+    background: var(--review-wash);
+  }
   .input-field {
     margin-top: 1px;
   }

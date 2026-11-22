@@ -1,114 +1,73 @@
 <template>
-  <secured-component :permission="'score call'" :show-message="true">
-    <div
-      :class="{
-        'call-score-page': true,
-        'call-score-page-dark': $vuetify.theme.isDark,
-      }"
-    >
-      <ValidationObserver ref="validation" v-slot="{ invalid }">
-        <div
-          class="loader"
-          v-if="
-            $store.getters['calls/singleFetchLoading'] ||
-            $store.getters['calls/fetchRatedCallLoading']
-          "
-        >
-          <v-container class="auth-page" fill-height fluid>
-            <v-row align="center" justify="center">
-              <div class="inner">
-                <v-progress-circular
-                  indeterminate
-                  width="2"
-                  color="black darken-5"
-                ></v-progress-circular>
-              </div>
-            </v-row>
-          </v-container>
+  <secured-component permission="score call" :show-message="true">
+    <div class="call-score-page">
+      <header class="score-header">
+        <div>
+          <v-btn text small class="score-back" :to="{ path: '/calls', query: $route.query }">
+            <v-icon left small>mdi-arrow-left</v-icon>
+            Calls
+          </v-btn>
+          <h1>Review call #{{ $route.params.id }}</h1>
+          <p v-if="callContext">{{ callContext }}</p>
         </div>
-        <v-row>
-          <v-col cols="12" sm="12" md="4">
-            <call-info />
-            <identify-office class="mt-5"/>
-          </v-col>
-          <v-col cols="12" sm="12" md="4">
+        <span v-if="!loading" :class="['review-badge', alreadyRated ? 'review-badge--done' : 'review-badge--pending']">
+          {{ alreadyRated ? ($route.query.blacklisted_call ? 'Blacklisted' : 'Reviewed') : 'Pending review' }}
+        </span>
+      </header>
+      <ValidationObserver ref="validation" v-slot="{ invalid }">
+        <v-progress-linear v-if="loading" indeterminate color="primary" aria-label="Loading call review" />
+        <div class="score-layout" :aria-busy="loading ? 'true' : 'false'">
+          <call-info class="score-recording" />
+          <div class="score-column">
             <call-status />
-            <additional-info class="mt-5" />
-          </v-col>
-          <v-col cols="12" sm="8" md="4">
-            <v-card
-              light
-              class="mx-auto call-actions py-5 mb-5"
-              outlined
-              :style="{
-                background: $store.getters['theme/themeBackgroundCard'],
-              }"
+            <procedures />
+          </div>
+          <div class="score-column">
+            <additional-info />
+            <identify-office />
+          </div>
+        </div>
+        <v-card v-if="!loading && !alreadyRated" class="score-submit" outlined>
+          <p class="score-submit-hint" aria-live="polite">
+            {{ invalid ? 'Complete the required fields to submit.' : 'Review ready to submit.' }}
+          </p>
+          <div class="score-submit-buttons">
+            <v-btn outlined color="error" @click="blacklistCallConfirm = true">Blacklist</v-btn>
+            <v-btn
+              color="primary"
+              depressed
+              :disabled="invalid"
+              :loading="$store.getters['calls/scoreCallLoading']"
+              @click="handleScoreCall"
             >
-              <v-card-text
-                v-if="$store.getters['calls/isAlreadyRated'] === false"
-                class="py-1 card-inner text-center card-actions"
-              >
-                <v-btn
-                  block
-                  :dark="$vuetify.theme.isDark"
-                  class=""
-                  @click="blacklistCallConfirm = true"
-                  depressed
-                  color="error"
-                >
-                <!-- :disabled="loadingMp3Failed === true" functionality removed to make sure the button is clickable despite no url available-->
-                  Blacklist
-                </v-btn>
-
-                <v-btn
-                  block
-                  :disabled="invalid"
-                  class="score-call-button"
-                  @click="handleScoreCall"
-                  depressed
-                  color="primary"
-                  :loading="$store.getters['calls/scoreCallLoading']"
-                >
-                <!-- :disabled="loadingMp3Failed === true" functionality removed to make sure the button is clickable despite no url available-->
-                  Score Call
-                </v-btn>
-              </v-card-text>
-              <v-card-text v-else><span> This call is already<strong> {{ $route.query.blacklisted_call ? 'blacklisted' : 'rated' }}</strong>.</span> </v-card-text>
-            </v-card>
-            <procedures  />
-
-          </v-col>
-
-          <v-dialog persistent v-model="blacklistCallConfirm" max-width="290">
-            <v-card>
-              <v-card-title class="headline"> Blacklist Call? </v-card-title>
-              <v-card-text>
-                Please confirm one more time before blacklisting a call.
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn
-                  :disabled="$store.getters['calls/blacklistCallLoading']"
-                  color=" darken-1"
-                  text
-                  @click="blacklistCallConfirm = false"
-                >
-                  Cancel
-                </v-btn>
-                <v-btn
-                  :loading="$store.getters['calls/blacklistCallLoading']"
-                  depressed
-                  color="error"
-                  @click="handleBlacklistCall"
-                  :disabled="isSuperAdmin"
-                >
-                  Blacklist Call
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </v-row>
+              <v-icon left small>mdi-check</v-icon>
+              Score Call
+            </v-btn>
+          </div>
+        </v-card>
+        <p v-else-if="!loading && alreadyRated" class="score-reviewed" role="status">
+          This call is already {{ $route.query.blacklisted_call ? 'blacklisted' : 'rated' }}.
+        </p>
       </ValidationObserver>
+      <v-dialog v-model="blacklistCallConfirm" persistent max-width="420">
+        <v-card>
+          <v-card-title>Blacklist call?</v-card-title>
+          <v-card-text>Confirm that you want to blacklist this call.</v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn text :disabled="$store.getters['calls/blacklistCallLoading']" @click="blacklistCallConfirm = false">
+              Cancel
+            </v-btn>
+            <v-btn
+              color="error"
+              depressed
+              :loading="$store.getters['calls/blacklistCallLoading']"
+              :disabled="isSuperAdmin"
+              @click="handleBlacklistCall"
+            >Blacklist Call</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </div>
   </secured-component>
 </template>
@@ -127,17 +86,15 @@ export default Vue.extend({
     };
   },
   computed: {
-    callScoringRules() {
-      return this.$store.getters["calls/rules"];
+    loading(): boolean {
+      return !this.callInfo.id || this.$store.getters["calls/singleFetchLoading"] ||
+        this.$store.getters["calls/fetchRatedCallLoading"];
     },
-    currentScoringCall() {
-      return this.$store.getters["calls/currentScoringCall"];
+    alreadyRated(): boolean {
+      return this.$store.getters["calls/isAlreadyRated"];
     },
-    scoreCallErrors() {
-      return this.$store.getters["calls/scoreCallErrors"];
-    },
-    loadingMp3Failed() {
-      return this.$store.getters["calls/loadingMp3Failed"];
+    callContext(): string {
+      return [this.callInfo.client?.name, this.callInfo.location?.name].filter(Boolean).join(" · ");
     },
     isSuperAdmin() {
       return (this.$auth.user as any)?.role_id < 2;
@@ -197,14 +154,6 @@ export default Vue.extend({
       });
     },
   },
-  watch: {
-    scoreCallErrors() {
-      const validation = this.$refs.validation;
-      // @ts-ignore
-      // validation.setErrors(this.scoreCallErrors);
-      // Todo show a toast notification here.
-    },
-  },
   components: {
     IdentifyOffice,
     CallStatus,
@@ -214,48 +163,97 @@ export default Vue.extend({
   },
 });
 </script>
-<style lang="scss">
+<style>
 .call-score-page {
-  position: relative;
-  &.call-score-page-dark {
-    .v-input--radio-group .v-label,
-    .v-card .v-card__title {
-      color: #939393 !important;
-    }
+  max-width: 1200px;
+  margin-inline: auto;
+}
+.score-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin-bottom: 16px;
+}
+.score-header .score-back {
+  margin: 0 0 6px -8px;
+}
+.score-header h1 {
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  line-height: 1.2;
+  letter-spacing: -.035em;
+}
+.score-header p {
+  margin: 6px 0 0;
+  color: var(--review-muted);
+}
+.score-layout,
+.score-column {
+  display: grid;
+  align-items: start;
+  gap: 16px;
+  min-width: 0;
+}
+.score-layout {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.score-recording {
+  grid-column: 1 / -1;
+}
+.call-score-page .score-layout .v-card {
+  background: var(--review-card) !important;
+  color: var(--review-text);
+}
+.call-score-page .score-layout .v-card__title {
+  color: var(--review-text);
+}
+.call-score-page .score-layout .v-card__text,
+.call-score-page .score-layout .v-input--radio-group .v-label {
+  color: var(--review-muted);
+}
+.call-score-page .score-layout .v-input--is-disabled .v-label {
+  opacity: .7;
+}
+.call-score-page .radio-column {
+  padding: 4px 12px;
+}
+.call-score-page .score-submit {
+  position: sticky;
+  z-index: 3;
+  bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 16px;
+  padding: 10px 14px;
+  box-shadow: 0 -3px 20px #1726411a;
+}
+.score-submit-hint,
+.score-reviewed {
+  color: var(--review-muted);
+}
+.score-submit .score-submit-hint {
+  margin: 0;
+  font-size: .875rem;
+}
+.score-submit-buttons {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+.score-reviewed {
+  margin-top: 14px;
+}
+@media (max-width: 699px) {
+  .score-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
   }
-  .loader {
-    position: absolute;
-    z-index: 1;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    background: #ffffffdb;
-  }
-  .card-actions {
-    display: flex !important;
-    justify-content: center;
-  }
-  .v-input--radio-group .v-label,
-  .v-card .v-card__title {
-    color: #263238 !important;
-  }
-  .v-input--radio-group .v-label {
-    font-size: 12px;
-  }
-  .call-actions {
-    border: 0px;
-    .v-card__text {
-      display: flex;
-      button {
-        min-width: 50% !important;
-        margin-right: 5px;
-      }
-    }
-  }
-  .radio-column {
-    padding: 0px 12px;
-    margin-bottom: 8px;
+  .score-column {
+    display: contents;
   }
 }
 </style>

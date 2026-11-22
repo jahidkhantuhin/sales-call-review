@@ -9,20 +9,20 @@
       outlined
     >
     <!-- <div class="d-flex justify-center"> -->
-      <v-card-title class="mt-n4 d-flex justify-center">
-        <span class="mt-n4 text-center text-decoration-underline">
+      <v-card-title class="lead-details-heading">
+        <span >
           Lead Details
         </span> 
       </v-card-title>
     <!-- </div> -->
-      <v-card-text class="mt-n4">
-        <v-card-title class="ml-n4">
+      <v-card-text class="pt-0">
+        <v-card-title class="lead-field-title">
           <span
             :class="{
                 'mt-n4': true,
                 'text-break': true,
             }"
-            > Patient`s Name
+            > Patient name
             <span style="color: red">
               {{$store.getters['calls/rules']['person_name_rules'] === 'required' ? ' *' : ''}}
             </span>
@@ -30,7 +30,6 @@
         </v-card-title>
         <ValidationProvider name="person_name" :rules="rules.person_name && $store.getters['calls/rules']['person_name_rules']" v-slot="{ errors, valid }">
           <v-text-field
-            class="mt-n4"
             v-model="personName"
             :dark="$vuetify.theme.isDark"
             outlined
@@ -40,13 +39,11 @@
         </ValidationProvider>
         <ValidationProvider name="person_email" v-slot="{ errors, valid }">
           <v-text-field
-            class="mt-n2"
             label="Email"
             v-model="personEmail"
             :dark="$vuetify.theme.isDark"
             outlined
             dense
-            :success="valid"
             :error-messages="errors"
             :rules="rules.email"
           >
@@ -54,19 +51,17 @@
         </ValidationProvider>
         <ValidationProvider name="person_phone" v-slot="{ errors, valid }">
           <v-text-field
-            class="mt-n2"
             label="Phone"
             v-model="personPhone"
             :dark="$vuetify.theme.isDark"
             outlined
             dense
-            :success="valid"
             :error-messages="errors"
             :rules="rules.person_number"
           >
           </v-text-field> 
         </ValidationProvider>
-        <v-row class="mt-n8">
+        <v-row class="mt-n2">
           <v-col>
             <v-menu
               v-model="menu1"
@@ -135,7 +130,7 @@
             </v-menu>
           </v-col>
         </v-row>
-        <v-card-title class="ml-n4">
+        <v-card-title class="lead-field-title">
           <span
             :class="{
                 'mt-n4': true,
@@ -150,12 +145,10 @@
         </v-card-title>
         <ValidationProvider name="comment" :rules="$store.getters['calls/rules']['comment_rules']" v-slot="{ errors, valid }">
           <v-textarea
-            class="mt-n4"
             outlined
             v-model="comment"
-            :success="valid"
             :disabled="$store.getters['calls/rules']['comment'] !== 'required'"
-            rows="5"
+            rows="3"
             :dark="$vuetify.theme.isDark"
             name="input-7-4"
           ></v-textarea>
@@ -287,25 +280,9 @@ export default Vue.extend({
 });
 </script>
 
-<style lang="scss">
-.additional-info {
-  .additional-card {
-    
-    border-radius: 5px !important;
-    border: none !important;
-
-    @media (min-height: 850px) {
-      height: calc(100vh - 388px);
-    }
-  }
-  .score {
-    border-radius: 5px !important;
-    border: none !important;
-  }
-  .radios {
-    margin-top: -16px;
-    position: relative;
-    top: 5px;
-  }
+<style scoped>
+.additional-info .lead-field-title {
+  padding: 4px 0 8px;
+  font-size: .9rem;
 }
 </style>

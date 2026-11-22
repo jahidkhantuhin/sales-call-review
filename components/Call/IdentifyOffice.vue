@@ -10,13 +10,13 @@
       }"
       outlined
     >
-      <v-card-title class="mt-n4">
+      <v-card-title>Office and staff</v-card-title>
+      <v-card-title class="score-question">
         <span
           :class="{
             'disabled-text':
               $store.getters['calls/rules']['identify_office'] !== 'required',
-              'mt-n4': true,
-              'text-break': true,
+                'text-break': true,
           }"
         >
           Identify Office? <span style="color: red">{{$store.getters['calls/rules']['identify_office'] === 'required' ? '*' : ''}}</span>
@@ -35,7 +35,6 @@
             "
             v-model="identifyOffice"
             row
-            class="mt-n4"
           >
             <v-radio :dark="$vuetify.theme.isDark" label="Yes" value="yes">
               <span slot="label"> Yes </span>
@@ -46,13 +45,12 @@
           </v-radio-group>
         </ValidationProvider>
       </v-card-text>
-      <v-card-title class="mt-n4">
+      <v-card-title class="score-question">
         <span
           :class="{
               'disabled-text':
               $store.getters['calls/rules']['recipient_identify_themselves'] !== 'required',
-              'mt-n4': true,
-              'text-break': true,
+                'text-break': true,
           }"
         >
           Did the staff member identify themselves? <span style="color: red">{{$store.getters['calls/rules']['recipient_identify_themselves'] === 'required' ? '*' : ''}}</span>
@@ -68,7 +66,6 @@
             @change="identifyThemselvesSelected"
             v-model="identifyThemselves"
             row
-            class="mt-n4"
             :disabled="
               $store.getters['calls/rules']['recipient_identify_themselves'] !== 'required'
             "
@@ -96,13 +93,12 @@
         </div> 
       </v-card-text>
 
-      <v-card-title class="mt-n4">
+      <v-card-title class="score-question">
         <span
           :class="{
             'disabled-text':
               $store.getters['calls/rules']['consult_offered'] !== 'required',
-              'mt-n4': true,
-              'text-break': true,
+                'text-break': true,
           }"
         >
           Was free consult offered? <span style="color: red">{{$store.getters['calls/rules']['consult_offered'] === 'required' ? '*' : ''}}</span>
@@ -121,7 +117,6 @@
             "
             v-model="consultOffered"
             row
-            class="mt-n4"
           >
             <v-radio :dark="$vuetify.theme.isDark" label="Yes" value="yes">
               <span slot="label"> Yes </span>
@@ -133,13 +128,12 @@
         </ValidationProvider>
       </v-card-text>
 
-      <v-card-title class="mt-n4">
+      <v-card-title class="score-question">
         <span
           :class="{
             'disabled-text':
               $store.getters['calls/rules']['handler_pitch'] !== 'required',
-              'mt-n4': true,
-              'text-break': true,
+                'text-break': true,
           }"
         >
           Did the handler pitch or promote the office/doctor? <span style="color: red">{{$store.getters['calls/rules']['handler_pitch'] === 'required' ? '*' : ''}}</span>
@@ -158,7 +152,6 @@
             "
             v-model="handlerPitch"
             row
-            class="mt-n4"
           >
             <v-radio :dark="$vuetify.theme.isDark" label="Yes" value="yes">
               <span slot="label"> Yes </span>
@@ -170,13 +163,12 @@
         </ValidationProvider>
       </v-card-text>
 
-      <v-card-title class="mt-n4">
+      <v-card-title class="score-question">
         <span
           :class="{
             'disabled-text':
               $store.getters['calls/rules']['caller_name_taken'] !== 'required',
-              'mt-n4': true,
-              'text-break': true,
+                'text-break': true,
           }"
         >
           Was the caller's name and number taken for follow up? <span style="color: red">{{$store.getters['calls/rules']['caller_name_taken'] === 'required' ? '*' : ''}}</span>
@@ -195,7 +187,6 @@
             "
             v-model="callerNameTaken"
             row
-            class="mt-n4"
           >
             <v-radio :dark="$vuetify.theme.isDark" label="Yes" value="yes">
               <span slot="label"> Yes </span>
@@ -404,28 +395,12 @@ export default Vue.extend({
 });
 </script>
 
-<style lang="scss">
-.identify-office-div {
-  .identify-office {
-    border: none !important;
-  }
-  .call-actions {
-    border-radius: 5px !important;
-    border: none !important;
-  }
-
-  .v-card__text {
-    margin-bottom: 0;
-    padding-bottom: 0;
-    padding-top: 0;
-    margin-top: -16px;
-  }
-
-  .v-card__title {
-    // background: red;
-  }
-  .v-card__text {
-    // background: blue;
-  }
+<style scoped>
+.identify-office .score-question {
+  padding-block: 4px 0;
+  font-size: .9rem;
+}
+.identify-office .v-card__text {
+  padding-block: 0;
 }
 </style>
