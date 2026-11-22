@@ -63,3 +63,7 @@ yarn dev
 ```
 
 This loads the original Nuxt Auth Laravel Sanctum strategy. Use `BASE_URL_STAGING` or `BASE_URL_PRODUCTION` for the corresponding scripts. Set `SHOWCASE_MODE=true` or remove the variable to return to the local showcase, then restart or rebuild.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
